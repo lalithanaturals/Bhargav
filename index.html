@@ -9,14 +9,9 @@
     <!-- Barcode Library -->
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <style>
-        .no-print {
-            display: block;
-        }
-        .print-only {
-            display: none;
-        }
+        .no-print { display: block; }
+        .print-only { display: none; }
 
-        /* Watermark Styles for Receipt Print Layout */
         .receipt-container {
             position: relative;
             background: white;
@@ -40,7 +35,6 @@
             print-color-adjust: exact !important;
         }
 
-        /* ================= MEDIA PRINT RULES ================= */
         @media print {
             html, body {
                 height: auto !important;
@@ -52,71 +46,23 @@
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
-            .no-print {
-                display: none !important;
-            }
-            .print-only {
-                display: block !important;
-                page-break-inside: avoid !important;
-                break-inside: avoid !important;
-                width: 100% !important;
-            }
+            .no-print { display: none !important; }
+            .print-only { display: block !important; page-break-inside: avoid !important; break-inside: avoid !important; width: 100% !important; }
 
-            /* --- Mode 1: A4 Print Rules --- */
-            body.print-mode-a4 @page {
-                size: A4 portrait;
-                margin: 0.5cm;
-            }
-
-            /* --- Mode 2: Thermal 80mm Print Rules --- */
-            body.print-mode-thermal @page {
-                size: 80mm auto;
-                margin: 0mm !important;
-            }
+            body.print-mode-a4 @page { size: A4 portrait; margin: 0.5cm; }
+            body.print-mode-thermal @page { size: 80mm auto; margin: 0mm !important; }
             
             body.print-mode-thermal .receipt-container {
-                width: 100% !important;
-                max-width: none !important;
-                padding: 0mm !important;
-                border: none !important;
-                margin: 0 !important;
-                color: #000 !important;
-                font-size: 12px !important;
-                line-height: 1.25 !important;
+                width: 100% !important; max-width: none !important; padding: 0mm !important; border: none !important; margin: 0 !important; color: #000 !important; font-size: 12px !important; line-height: 1.25 !important;
             }
-            
-            body.print-mode-thermal .watermark-img {
-                display: none !important;
-            }
-            body.print-mode-thermal .thermal-stack {
-                display: block !important;
-            }
-            body.print-mode-thermal .thermal-border-bottom {
-                border-bottom: 1.5px dashed #000 !important;
-                padding-bottom: 5px !important;
-                margin-bottom: 5px !important;
-            }
-            body.print-mode-thermal .thermal-text-lg {
-                font-size: 14px !important;
-                font-weight: 800 !important;
-                text-transform: uppercase;
-            }
-            body.print-mode-thermal .thermal-text-sm {
-                font-size: 11.5px !important;
-                font-weight: 700 !important;
-            }
-            body.print-mode-thermal .thermal-bold {
-                font-weight: 800 !important;
-                font-size: 12px !important;
-            }
-            body.print-mode-thermal .thermal-hide-col-border {
-                border-right: none !important;
-                padding-right: 0 !important;
-            }
-            body.print-mode-thermal #print-grand-total {
-                font-size: 18px !important;
-                font-weight: 900 !important;
-            }
+            body.print-mode-thermal .watermark-img { display: none !important; }
+            body.print-mode-thermal .thermal-stack { display: block !important; }
+            body.print-mode-thermal .thermal-border-bottom { border-bottom: 1.5px dashed #000 !important; padding-bottom: 5px !important; margin-bottom: 5px !important; }
+            body.print-mode-thermal .thermal-text-lg { font-size: 14px !important; font-weight: 800 !important; text-transform: uppercase; }
+            body.print-mode-thermal .thermal-text-sm { font-size: 11.5px !important; font-weight: 700 !important; }
+            body.print-mode-thermal .thermal-bold { font-weight: 800 !important; font-size: 12px !important; }
+            body.print-mode-thermal .thermal-hide-col-border { border-right: none !important; padding-right: 0 !important; }
+            body.print-mode-thermal #print-grand-total { font-size: 18px !important; font-weight: 900 !important; }
         }
     </style>
 </head>
@@ -124,8 +70,6 @@
 
     <!-- ================= APP INTERFACE (NO-PRINT) ================= -->
     <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden no-print border border-red-100">
-        
-        <!-- Header -->
         <div class="bg-red-600 p-6 text-white flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div>
                 <h1 class="text-2xl font-bold tracking-wide">Exchange Calculator</h1>
@@ -137,15 +81,13 @@
                     <span>Search Record</span>
                 </button>
                 <div class="text-right">
-                    <span class="text-xs text-red-200 block uppercase font-semibold">Exchange ID</span>
+                    <span class="text-xs text-red-200 block uppercase font-semibold">Next Exchange ID</span>
                     <span id="app-exchange-id" class="text-sm font-extrabold bg-red-700 px-3 py-1 rounded-full text-white inline-block mt-0.5">LNex1</span>
                 </div>
             </div>
         </div>
 
         <div class="p-6 space-y-6">
-
-            <!-- Customer Details Section -->
             <div class="bg-red-50/50 p-4 rounded-xl border border-red-100 space-y-3">
                 <h3 class="text-sm font-bold text-red-800 uppercase tracking-wide border-b border-red-100 pb-2">Customer Information</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
@@ -161,28 +103,19 @@
                 </div>
             </div>
 
-            <!-- Tab Switcher -->
             <div class="flex border-b border-gray-200">
-                <button id="tab-al" onclick="switchTab('al')" class="flex-1 py-3 font-semibold text-center border-b-2 border-red-600 text-red-600">
-                    Aluminum (₹150/kg)
-                </button>
-                <button id="tab-st" onclick="switchTab('st')" class="flex-1 py-3 font-semibold text-center border-b-2 border-transparent text-gray-500 hover:text-red-600">
-                    Steel (₹50/kg)
-                </button>
+                <button id="tab-al" onclick="switchTab('al')" class="flex-1 py-3 font-semibold text-center border-b-2 border-red-600 text-red-600">Aluminum (₹150/kg)</button>
+                <button id="tab-st" onclick="switchTab('st')" class="flex-1 py-3 font-semibold text-center border-b-2 border-transparent text-gray-500 hover:text-red-600">Steel (₹50/kg)</button>
             </div>
 
-            <!-- Dynamic Weight Inputs Area -->
             <div>
                 <div class="flex justify-between items-center mb-3">
                     <label class="text-sm font-semibold text-gray-700" id="item-label">Aluminum Item Weights (kg)</label>
                     <button onclick="addItem()" class="text-xs bg-red-50 text-red-600 font-bold px-3 py-1 rounded-lg border border-red-200 hover:bg-red-100">+ Add Item</button>
                 </div>
-                <div id="item-list" class="space-y-2 max-h-60 overflow-y-auto p-1">
-                    <!-- Dynamic Inputs -->
-                </div>
+                <div id="item-list" class="space-y-2 max-h-60 overflow-y-auto p-1"></div>
             </div>
 
-            <!-- Handles Input -->
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Number of Handles</label>
                 <div class="flex items-center space-x-4 bg-red-50/40 p-3 rounded-xl border border-red-100">
@@ -192,7 +125,6 @@
                 </div>
             </div>
 
-            <!-- Live Summary Cards -->
             <div class="grid grid-cols-2 gap-4">
                 <div class="bg-red-50 border border-red-100 p-3 rounded-xl text-center">
                     <span class="text-xs text-red-600 font-bold uppercase">Aluminum Total</span>
@@ -204,7 +136,6 @@
                 </div>
             </div>
 
-            <!-- Action Buttons: Clear, Get Estimation & Submit Order -->
             <div class="flex flex-col sm:flex-row gap-3">
                 <button onclick="resetForm()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3.5 px-4 rounded-xl border border-gray-300 transition flex items-center justify-center space-x-1.5 sm:w-28">
                     <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
@@ -219,12 +150,10 @@
                     <span>Submit Order</span>
                 </button>
             </div>
-
         </div>
     </div>
 
-
-    <!-- ================= SEARCH MODAL ================= -->
+    <!-- SEARCH MODAL -->
     <div id="search-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden no-print">
         <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[85vh] flex flex-col">
             <div class="flex justify-between items-center border-b pb-3">
@@ -233,7 +162,7 @@
             </div>
             
             <div class="flex space-x-2">
-                <input type="text" id="search-input" placeholder="Enter ID (LNex1 / EST1) or Mobile Number" class="flex-1 border rounded-xl p-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-red-500 focus:outline-none">
+                <input type="text" id="search-input" placeholder="Enter ID (LNex1 / Est1) or Mobile Number" class="flex-1 border rounded-xl p-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-red-500 focus:outline-none">
                 <button onclick="executeSearch()" id="btn-search-trigger" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-xl font-semibold text-sm">Search</button>
             </div>
 
@@ -243,17 +172,15 @@
         </div>
     </div>
 
-
-    <!-- ================= SUBMISSION CONFIRMATION & PRINT OPTIONS MODAL ================= -->
+    <!-- SUBMISSION CONFIRMATION MODAL -->
     <div id="confirm-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden no-print">
         <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 text-center">
             
-            <!-- Step 1 View: Review & Submit (Order Mode) -->
             <div id="modal-step-review" class="space-y-4">
                 <h3 class="text-lg font-bold text-gray-900 border-b pb-2">Confirm Transaction Submission</h3>
                 
                 <div class="space-y-2 text-sm text-gray-700 bg-red-50/50 p-3 rounded-xl border border-red-100 text-left">
-                    <div><span class="font-semibold">Exchange ID:</span> <span id="modal-exchange-id" class="font-bold text-red-600"></span></div>
+                    <div><span class="font-semibold">Exchange ID to Assign:</span> <span id="modal-exchange-id" class="font-bold text-red-600"></span></div>
                     <div><span class="font-semibold">Name:</span> <span id="modal-cust-name"></span></div>
                     <div><span class="font-semibold">Mobile:</span> <span id="modal-cust-phone"></span></div>
                     <div class="border-t border-red-100 pt-1 flex justify-between">
@@ -281,7 +208,6 @@
                 </div>
             </div>
 
-            <!-- Step 2 View: Post-Submission or Estimation Print Options -->
             <div id="modal-step-print" class="hidden space-y-4">
                 <div id="modal-status-icon" class="w-12 h-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
@@ -291,11 +217,10 @@
                     <p id="modal-print-subtitle" class="text-xs font-semibold text-gray-500 mt-1">Choose format to print or submit estimation to Sheets:</p>
                 </div>
 
-                <!-- Numerical Summary Display inside popup -->
                 <div class="bg-amber-50/60 p-3 rounded-2xl border border-amber-200 text-left text-xs space-y-1.5 text-gray-700">
                     <div class="flex justify-between">
                         <span>Estimation ID:</span>
-                        <span id="popup-est-id" class="font-bold text-amber-700">EST1</span>
+                        <span id="popup-est-id" class="font-bold text-amber-700">Est1</span>
                     </div>
                     <div class="flex justify-between">
                         <span>Aluminum (Net):</span>
@@ -311,7 +236,6 @@
                     </div>
                 </div>
 
-                <!-- Dedicated Submit for Estimation Action in Popup -->
                 <button onclick="processSubmitEstimation()" id="btn-submit-est" class="w-full py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-2xl font-bold text-sm shadow transition flex items-center justify-center space-x-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
                     <span>Submit Estimation to Sheets</span>
@@ -319,34 +243,24 @@
 
                 <div class="flex items-center space-x-3 pt-1">
                     <button onclick="triggerReceiptPrint('a4')" class="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white rounded-full font-bold text-sm flex items-center justify-center space-x-2 shadow transition">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                         <span>Print A4</span>
                     </button>
                     <button onclick="triggerReceiptPrint('thermal')" class="flex-1 py-3 bg-slate-900 hover:bg-black text-white rounded-2xl font-bold text-xs flex items-center justify-center space-x-1.5 shadow transition">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
                         <span>Print Thermal (80mm)</span>
                     </button>
                 </div>
 
                 <button onclick="closeModalOnly()" class="w-full py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-2xl font-semibold text-sm transition mt-1">Close</button>
             </div>
-
         </div>
     </div>
 
-
-    <!-- ================= PRINT-ONLY RECEIPT LAYOUT ================= -->
+    <!-- PRINT-ONLY RECEIPT LAYOUT -->
     <div class="print-only max-w-2xl mx-auto p-3 border-2 border-red-700 rounded-lg receipt-container">
-        <!-- Watermark Image Element for Browser Printing -->
         <img src="./4L.png" alt="Watermark Logo" class="watermark-img">
-
         <div class="relative z-10">
-            <!-- Duplicate / Estimation Copy Banner -->
-            <div id="print-duplicate-badge" class="hidden text-center mb-1 bg-red-100 text-red-700 font-extrabold text-xs tracking-widest border border-red-300 py-0.5 rounded uppercase">
-                *** DUPLICATE COPY ***
-            </div>
+            <div id="print-duplicate-badge" class="hidden text-center mb-1 bg-red-100 text-red-700 font-extrabold text-xs tracking-widest border border-red-300 py-0.5 rounded uppercase">*** DUPLICATE COPY ***</div>
 
-            <!-- Header -->
             <div class="flex items-center justify-between border-b-2 border-red-600 pb-2 mb-2 thermal-border-bottom">
                 <div>
                     <h1 id="receipt-header-title" class="text-lg font-bold uppercase tracking-wide text-red-700 thermal-text-lg">Exchange Material Receipt</h1>
@@ -358,15 +272,12 @@
                 </div>
             </div>
 
-            <!-- Customer Header in Receipt -->
             <div class="bg-red-50/60 p-2 rounded border border-red-100 mb-3 text-xs thermal-text-sm thermal-border-bottom grid grid-cols-2 gap-2">
                 <div><span class="font-bold text-gray-700 thermal-bold">Name:</span> <span id="print-cust-name" class="font-semibold"></span></div>
                 <div><span class="font-bold text-gray-700 thermal-bold">Mobile:</span> <span id="print-cust-phone" class="font-semibold"></span></div>
             </div>
 
-            <!-- Side-By-Side / Thermal Stack Layout -->
             <div class="grid grid-cols-2 gap-4 text-xs thermal-stack thermal-text-sm">
-                <!-- Aluminum Column -->
                 <div class="border-r pr-3 thermal-hide-col-border thermal-border-bottom">
                     <h2 class="font-bold text-xs border-b pb-1 mb-1.5 text-red-700 thermal-text-lg">Aluminum (₹150.00 / kg)</h2>
                     <div class="space-y-0.5 mb-2" id="print-al-items"></div>
@@ -378,7 +289,6 @@
                     </div>
                 </div>
 
-                <!-- Steel Column -->
                 <div class="thermal-border-bottom">
                     <h2 class="font-bold text-xs border-b pb-1 mb-1.5 text-gray-800 thermal-text-lg">Steel (₹50.00 / kg)</h2>
                     <div class="space-y-0.5 mb-2" id="print-st-items"></div>
@@ -391,7 +301,6 @@
                 </div>
             </div>
 
-            <!-- Grand Total Footer with Barcode -->
             <div class="border-t-2 border-red-700 mt-3 pt-2 flex justify-between items-center thermal-border-bottom">
                 <div>
                     <span class="text-xs font-bold uppercase block text-gray-700 thermal-text-sm">Grand Total Exchange Payout:</span>
@@ -406,12 +315,11 @@
 
     <!-- App Logic -->
     <script>
-        const scriptUrl = "https://script.google.com/macros/s/AKfycbyb0fFWz9xw-J7Re1rjVmtHZNe7nrigDGhsXK6YLvnm-dao59x1fw7ns7U-B0WxXFLc/exec";
+        const scriptUrl = "https://script.google.com/macros/s/AKfycbyvWPa8AXebbHVtHWK2_zUI45J1SU6YQycWwYaDTbSO9hzPAp7VPkhiis3H5MNvipFd8w/exec"; // Replace with your deployment URL
         const rates = { al: 150.00, st: 50.00 };
         let activeTab = 'al';
         let currentExchangeId = 'LNex1';
-        let currentEstId = 'EST1';
-        let localEstCounter = 1;
+        let currentEstId = 'Est1';
         let searchResultsStore = [];
         let isEstimationMode = false;
 
@@ -459,11 +367,13 @@
             searchResultsStore = data.results;
 
             container.innerHTML = data.results.map((r, index) => {
-                const isEstRecord = (r.exchangeId && r.exchangeId.toString().startsWith('EST')) || (r.type === 'ESTIMATE');
+                const recordId = r.estId || r.exchangeId;
+                const isEstRecord = (r.estId && r.estId.toString().trim() !== "");
+                
                 return `
                 <div class="${isEstRecord ? 'bg-amber-50/60 border-amber-200' : 'bg-red-50/50 border-red-100'} p-3.5 rounded-xl border text-xs space-y-2">
                     <div class="flex justify-between font-bold ${isEstRecord ? 'text-amber-700' : 'text-red-700'} text-sm">
-                        <span>${r.exchangeId} ${isEstRecord ? '(ESTIMATE)' : ''}</span>
+                        <span>${recordId} ${isEstRecord ? '(ESTIMATE)' : ''}</span>
                         <span>₹${parseFloat(r.grandTotal || 0).toFixed(2)}</span>
                     </div>
                     <div class="text-gray-700"><span class="font-semibold">Name:</span> ${r.customerName} (${r.customerPhone})</div>
@@ -499,20 +409,23 @@
 
             setPrintMode(mode);
 
-            const isEstRecord = (r.exchangeId && r.exchangeId.toString().startsWith('EST')) || (r.type === 'ESTIMATE');
+            const recordId = r.estId || r.exchangeId;
+            const isEstRecord = (r.estId && r.estId.toString().trim() !== "");
             isEstimationMode = isEstRecord;
 
             const duplicateBadge = document.getElementById('print-duplicate-badge');
             if (isEstRecord) {
                 duplicateBadge.innerText = "*** ESTIMATE RECEIPT - NOT PAID ***";
                 document.getElementById('receipt-header-title').innerText = "Material Estimation Receipt";
+                document.getElementById('print-id-label').innerText = "Estimation ID";
             } else {
                 duplicateBadge.innerText = "*** DUPLICATE COPY ***";
                 document.getElementById('receipt-header-title').innerText = "Exchange Material Receipt";
+                document.getElementById('print-id-label').innerText = "Exchange ID";
             }
             duplicateBadge.classList.remove('hidden');
 
-            document.getElementById('print-exchange-id').innerText = r.exchangeId;
+            document.getElementById('print-exchange-id').innerText = recordId;
             document.getElementById('print-cust-name').innerText = r.customerName;
             document.getElementById('print-cust-phone').innerText = r.customerPhone;
             document.getElementById('print-date').innerText = "Date: " + r.timestamp;
@@ -563,7 +476,7 @@
             }
         }
 
-        function fetchNextExchangeId() {
+        function fetchNextIds() {
             if (!scriptUrl) return;
             const oldScript = document.getElementById('jsonp-script');
             if (oldScript) oldScript.remove();
@@ -603,7 +516,7 @@
         }
 
         function init() {
-            fetchNextExchangeId();
+            fetchNextIds();
             render();
         }
 
@@ -701,13 +614,11 @@
             renderSimpleBarcode(grandTotal);
         }
 
-        // Action 1: Get Estimation Mode
         function handleGetEstimation() {
             isEstimationMode = true;
             const name = document.getElementById('cust-name').value.trim() || 'Valued Customer';
             const phone = document.getElementById('cust-phone').value.trim() || 'N/A';
 
-            // Duplicate/Estimate header settings
             const duplicateBadge = document.getElementById('print-duplicate-badge');
             duplicateBadge.innerText = "*** ESTIMATE RECEIPT - NOT PAID ***";
             duplicateBadge.classList.remove('hidden');
@@ -719,7 +630,6 @@
             document.getElementById('print-cust-phone').innerText = phone;
             calculate();
 
-            // Prepare Modal for Estimation Print & Submit
             document.getElementById('modal-status-icon').className = "w-12 h-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto";
             document.getElementById('modal-print-title').innerText = "Estimation Ready";
             document.getElementById('modal-print-subtitle').innerText = `Estimation ID: ${currentEstId}. Submit to Sheets or choose print format:`;
@@ -734,7 +644,6 @@
             document.getElementById('confirm-modal').classList.remove('hidden');
         }
 
-        // Submit Estimation to Sheets Function
         async function processSubmitEstimation() {
             const name = document.getElementById('cust-name').value.trim() || 'Valued Customer';
             const phone = document.getElementById('cust-phone').value.trim() || 'N/A';
@@ -751,7 +660,7 @@
                 try {
                     const formData = new URLSearchParams();
                     formData.append('timestamp', new Date().toLocaleString());
-                    formData.append('exchangeId', currentEstId); // Stored in Exchange ID Column
+                    formData.append('estId', currentEstId); // Populates Estimate ID (Col B)
                     formData.append('customerName', name);
                     formData.append('customerPhone', phone);
                     formData.append('alGross', al.gross);
@@ -777,13 +686,9 @@
             submitEstBtn.innerText = "✓ Estimation Submitted to Sheets";
             submitEstBtn.className = "w-full py-3 bg-green-600 text-white rounded-2xl font-bold text-sm shadow transition flex items-center justify-center space-x-2";
 
-            // Increment local sequence and fetch next ID
-            localEstCounter++;
-            currentEstId = "EST" + localEstCounter;
-            fetchNextExchangeId();
+            fetchNextIds();
         }
 
-        // Action 2: Submit Order Mode
         function handleSubmitOrder() {
             isEstimationMode = false;
             const name = document.getElementById('cust-name').value.trim();
@@ -851,7 +756,7 @@
                 try {
                     const formData = new URLSearchParams();
                     formData.append('timestamp', new Date().toLocaleString());
-                    formData.append('exchangeId', currentExchangeId);
+                    formData.append('exchangeId', currentExchangeId); // Populates Exchange ID (Col C) ONLY on submit
                     formData.append('customerName', name);
                     formData.append('customerPhone', phone);
                     formData.append('alGross', al.gross);
@@ -884,6 +789,8 @@
 
             document.getElementById('modal-step-review').classList.add('hidden');
             document.getElementById('modal-step-print').classList.remove('hidden');
+            
+            fetchNextIds(); // Refresh IDs after submitting order
         }
 
         function triggerReceiptPrint(mode) {
@@ -899,10 +806,6 @@
             }
         }
 
-        function finishOrderWithoutPrint() {
-            closeModalOnly();
-        }
-
         function resetForm() {
             document.getElementById('cust-name').value = '';
             document.getElementById('cust-phone').value = '';
@@ -914,7 +817,7 @@
                 st: { weights: [0, 0], handles: 0 }
             };
 
-            fetchNextExchangeId();
+            fetchNextIds();
             render();
         }
 
