@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Exchange Calculator & Google Sheets Sync</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -66,86 +66,86 @@
         }
     </style>
 </head>
-<body class="bg-rose-50 min-h-screen p-4 md:p-8 font-sans">
+<body class="bg-rose-50 min-h-screen p-2 sm:p-4 md:p-8 font-sans">
 
     <!-- ================= APP INTERFACE (NO-PRINT) ================= -->
     <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden no-print border border-red-100">
-        <div class="bg-red-600 p-6 text-white flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div class="bg-red-600 p-4 sm:p-6 text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div>
                 <span class="text-xs font-semibold uppercase tracking-wider text-red-200 block mb-0.5">Lalitha Naturals</span>
-                <h1 class="text-2xl font-bold tracking-wide">Exchange Calculator</h1>
+                <h1 class="text-xl sm:text-2xl font-bold tracking-wide">Exchange Calculator</h1>
             </div>
-            <div class="flex items-center space-x-3 w-full md:w-auto justify-between md:justify-end">
-                <button onclick="openSearchModal()" type="button" class="bg-red-700 hover:bg-red-800 text-white font-bold px-3 py-1.5 rounded-lg text-xs flex items-center space-x-1 shadow cursor-pointer relative z-20">
+            <div class="flex items-center space-x-3 w-full sm:w-auto justify-between sm:justify-end">
+                <button onclick="openSearchModal()" type="button" class="bg-red-700 hover:bg-red-800 text-white font-bold px-3 py-2 rounded-lg text-xs flex items-center space-x-1 shadow cursor-pointer relative z-20 active:scale-95 transition-transform">
                     <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     <span class="pointer-events-none">Search Record</span>
                 </button>
                 <div class="text-right">
-                    <span class="text-xs text-red-200 block uppercase font-semibold">Next Exchange ID</span>
-                    <span id="app-exchange-id" class="text-sm font-extrabold bg-red-700 px-3 py-1 rounded-full text-white inline-block mt-0.5">LNex1</span>
+                    <span class="text-xs text-red-200 block uppercase font-semibold">Next ID</span>
+                    <span id="app-exchange-id" class="text-sm font-extrabold bg-red-700 px-2.5 py-1 rounded-full text-white inline-block mt-0.5">LNex1</span>
                 </div>
             </div>
         </div>
 
-        <div class="p-6 space-y-6">
-            <div class="bg-red-50/50 p-4 rounded-xl border border-red-100 space-y-3">
+        <div class="p-4 sm:p-6 space-y-4 sm:space-y-6">
+            <div class="bg-red-50/50 p-3 sm:p-4 rounded-xl border border-red-100 space-y-3">
                 <h3 class="text-sm font-bold text-red-800 uppercase tracking-wide border-b border-red-100 pb-2">Customer Information</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                     <div>
                         <label class="block text-xs font-semibold text-gray-700 mb-1">Name *</label>
-                        <input type="text" id="cust-name" placeholder="Enter name" class="w-full border rounded-lg p-2 text-sm text-gray-800 focus:ring-2 focus:ring-red-500 focus:outline-none">
+                        <input type="text" id="cust-name" placeholder="Enter name" autocapitalize="words" class="w-full border rounded-xl p-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-red-500 focus:outline-none bg-white">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-gray-700 mb-1">Mobile * (10 Digits)</label>
-                        <input type="tel" id="cust-phone" inputmode="numeric" pattern="[0-9]*" maxlength="10" placeholder="Enter 10 digit mobile number" oninput="validatePhoneInput(this)" class="w-full border rounded-lg p-2 text-sm text-gray-800 focus:ring-2 focus:ring-red-500 focus:outline-none">
+                        <input type="text" id="cust-phone" inputmode="numeric" pattern="[0-9]*" maxlength="10" placeholder="10 digit number" oninput="validatePhoneInput(this)" class="w-full border rounded-xl p-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-red-500 focus:outline-none bg-white">
                         <span id="phone-error" class="text-[11px] text-red-600 font-semibold hidden block mt-1">Mobile number must contain exactly 10 digits.</span>
                     </div>
                 </div>
             </div>
 
             <div class="flex border-b border-gray-200">
-                <button id="tab-al" onclick="switchTab('al')" class="flex-1 py-3 font-semibold text-center border-b-2 border-red-600 text-red-600">Aluminum (₹150/kg)</button>
-                <button id="tab-st" onclick="switchTab('st')" class="flex-1 py-3 font-semibold text-center border-b-2 border-transparent text-gray-500 hover:text-red-600">Steel (₹50/kg)</button>
+                <button id="tab-al" onclick="switchTab('al')" class="flex-1 py-3 font-semibold text-center border-b-2 border-red-600 text-red-600 text-sm sm:text-base">Aluminum (₹150/kg)</button>
+                <button id="tab-st" onclick="switchTab('st')" class="flex-1 py-3 font-semibold text-center border-b-2 border-transparent text-gray-500 hover:text-red-600 text-sm sm:text-base">Steel (₹50/kg)</button>
             </div>
 
             <div>
                 <div class="flex justify-between items-center mb-3">
                     <label class="text-sm font-semibold text-gray-700" id="item-label">Aluminum Item Weights (kg)</label>
-                    <button onclick="addItem()" class="text-xs bg-red-50 text-red-600 font-bold px-3 py-1 rounded-lg border border-red-200 hover:bg-red-100">+ Add Item</button>
+                    <button onclick="addItem()" class="text-xs bg-red-50 text-red-600 font-bold px-3 py-1.5 rounded-lg border border-red-200 hover:bg-red-100 active:scale-95 transition-transform">+ Add Item</button>
                 </div>
-                <div id="item-list" class="space-y-2 max-h-60 overflow-y-auto p-1"></div>
+                <div id="item-list" class="space-y-2.5 max-h-60 overflow-y-auto p-1"></div>
             </div>
 
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Number of Handles</label>
                 <div class="flex items-center space-x-4 bg-red-50/40 p-3 rounded-xl border border-red-100">
-                    <button onclick="updateHandles(-1)" class="w-10 h-10 bg-white border border-gray-200 rounded-lg font-bold text-gray-700 shadow-sm active:bg-gray-100">-</button>
+                    <button onclick="updateHandles(-1)" class="w-11 h-11 bg-white border border-gray-200 rounded-xl font-bold text-gray-700 shadow-sm active:bg-gray-100 active:scale-95 transition-transform flex items-center justify-center text-lg">-</button>
                     <span id="handle-count" class="text-lg font-bold text-gray-800 flex-1 text-center">0</span>
-                    <button onclick="updateHandles(1)" class="w-10 h-10 bg-white border border-gray-200 rounded-lg font-bold text-gray-700 shadow-sm active:bg-gray-100">+</button>
+                    <button onclick="updateHandles(1)" class="w-11 h-11 bg-white border border-gray-200 rounded-xl font-bold text-gray-700 shadow-sm active:bg-gray-100 active:scale-95 transition-transform flex items-center justify-center text-lg">+</button>
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
-                <div class="bg-red-50 border border-red-100 p-3 rounded-xl text-center">
-                    <span class="text-xs text-red-600 font-bold uppercase">Aluminum Total</span>
-                    <div id="al-total-display" class="text-xl font-extrabold text-red-700 mt-1">₹0.00</div>
+            <div class="grid grid-cols-2 gap-3 sm:gap-4">
+                <div class="bg-red-50 border border-red-100 p-3 sm:p-4 rounded-xl text-center">
+                    <span class="text-[11px] sm:text-xs text-red-600 font-bold uppercase tracking-wide">Aluminum Total</span>
+                    <div id="al-total-display" class="text-lg sm:text-xl font-extrabold text-red-700 mt-1">₹0.00</div>
                 </div>
-                <div class="bg-slate-50 border border-slate-200 p-3 rounded-xl text-center">
-                    <span class="text-xs text-slate-600 font-bold uppercase">Steel Total</span>
-                    <div id="st-total-display" class="text-xl font-extrabold text-slate-800 mt-1">₹0.00</div>
+                <div class="bg-slate-50 border border-slate-200 p-3 sm:p-4 rounded-xl text-center">
+                    <span class="text-[11px] sm:text-xs text-slate-600 font-bold uppercase tracking-wide">Steel Total</span>
+                    <div id="st-total-display" class="text-lg sm:text-xl font-extrabold text-slate-800 mt-1">₹0.00</div>
                 </div>
             </div>
 
-            <div class="flex flex-col sm:flex-row gap-3">
-                <button onclick="resetForm()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3.5 px-4 rounded-xl border border-gray-300 transition flex items-center justify-center space-x-1.5 sm:w-28">
+            <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                <button onclick="resetForm()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3.5 px-4 rounded-xl border border-gray-300 transition flex items-center justify-center space-x-1.5 sm:w-28 active:scale-95">
                     <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                    <span id="clear-btn-text">Refresh</span>
+                    <span>Refresh</span>
                 </button>
-                <button onclick="handleGetEstimation()" class="flex-1 bg-amber-600 hover:bg-amber-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg transition flex items-center justify-center space-x-2">
+                <button onclick="handleGetEstimation()" class="flex-1 bg-amber-600 hover:bg-amber-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg transition flex items-center justify-center space-x-2 active:scale-95">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
                     <span>Get Estimation</span>
                 </button>
-                <button onclick="handleSubmitOrder()" id="btn-submit" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg transition flex items-center justify-center space-x-2">
+                <button onclick="handleSubmitOrder()" id="btn-submit" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg transition flex items-center justify-center space-x-2 active:scale-95">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                     <span>Submit Order</span>
                 </button>
@@ -154,33 +154,33 @@
     </div>
 
     <!-- SEARCH MODAL -->
-    <div id="search-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden no-print">
-        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[85vh] flex flex-col">
+    <div id="search-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-3 sm:p-4 z-50 hidden no-print">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-4 sm:p-6 shadow-2xl space-y-4 max-h-[85vh] flex flex-col">
             <div class="flex justify-between items-center border-b pb-3">
-                <h3 class="text-lg font-bold text-gray-900">Search Transaction & Estimation Records</h3>
+                <h3 class="text-base sm:text-lg font-bold text-gray-900">Search Records</h3>
                 <button onclick="closeSearchModal()" class="text-gray-400 hover:text-gray-600 font-bold text-xl px-2">✕</button>
             </div>
             
             <div class="flex space-x-2">
-                <input type="text" id="search-input" oninput="executeSearch()" onkeydown="if(event.key === 'Enter') executeSearch()" placeholder="Enter ID (LNex1 / Est1) or Mobile Number" class="flex-1 border rounded-xl p-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-red-500 focus:outline-none">
-                <button onclick="executeSearch()" id="btn-search-trigger" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-xl font-semibold text-sm">Search</button>
+                <input type="text" id="search-input" oninput="executeSearch()" onkeydown="if(event.key === 'Enter') executeSearch()" placeholder="Enter ID (LNex1 / Est1) or Mobile" class="flex-1 border rounded-xl p-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-red-500 focus:outline-none bg-white">
+                <button onclick="executeSearch()" id="btn-search-trigger" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-xl font-semibold text-sm active:scale-95">Search</button>
             </div>
 
             <div id="search-results-container" class="flex-1 overflow-y-auto space-y-3 pt-2">
-                <div class="text-center text-xs text-gray-400 py-6">Loading last 4 submissions from Google Sheets...</div>
+                <div class="text-center text-xs text-gray-400 py-6">Loading submissions from Google Sheets...</div>
             </div>
         </div>
     </div>
 
     <!-- SUBMISSION CONFIRMATION MODAL -->
-    <div id="confirm-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden no-print">
-        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 text-center">
+    <div id="confirm-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-3 sm:p-4 z-50 hidden no-print">
+        <div class="bg-white rounded-3xl max-w-md w-full p-4 sm:p-6 shadow-2xl space-y-4 text-center">
             
             <!-- Step 1 View: Review & Submit (Order Mode) -->
             <div id="modal-step-review" class="space-y-4">
-                <h3 class="text-lg font-bold text-gray-900 border-b pb-2">Confirm Transaction Submission</h3>
+                <h3 class="text-base sm:text-lg font-bold text-gray-900 border-b pb-2">Confirm Transaction Submission</h3>
                 
-                <div class="space-y-2 text-sm text-gray-700 bg-red-50/50 p-3 rounded-xl border border-red-100 text-left">
+                <div class="space-y-2 text-xs sm:text-sm text-gray-700 bg-red-50/50 p-3 rounded-xl border border-red-100 text-left">
                     <div><span class="font-semibold">Exchange ID to Assign:</span> <span id="modal-exchange-id" class="font-bold text-red-600"></span></div>
                     <div><span class="font-semibold">Name:</span> <span id="modal-cust-name"></span></div>
                     <div><span class="font-semibold">Mobile:</span> <span id="modal-cust-phone"></span></div>
@@ -196,14 +196,14 @@
                     <div class="flex justify-between">
                         <span>Steel Amount:</span> <span id="modal-st-cost" class="font-semibold"></span>
                     </div>
-                    <div class="border-t border-red-200 pt-2 flex justify-between text-base font-bold text-red-700">
+                    <div class="border-t border-red-200 pt-2 flex justify-between text-sm sm:text-base font-bold text-red-700">
                         <span>Grand Total Payout:</span> <span id="modal-grand-total"></span>
                     </div>
                 </div>
 
                 <div class="flex space-x-3 pt-2">
-                    <button onclick="closeModal()" class="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-2xl font-semibold text-sm">Cancel</button>
-                    <button onclick="processSubmitOrder()" id="btn-process-submit" class="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-bold text-sm shadow">
+                    <button onclick="closeModal()" class="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-2xl font-semibold text-sm active:scale-95">Cancel</button>
+                    <button onclick="processSubmitOrder()" id="btn-process-submit" class="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-bold text-sm shadow active:scale-95">
                         <span>Submit Exchange</span>
                     </button>
                 </div>
@@ -215,7 +215,7 @@
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
                 </div>
                 <div>
-                    <h3 id="modal-print-title" class="text-lg font-bold text-gray-900">Estimation Ready</h3>
+                    <h3 id="modal-print-title" class="text-base sm:text-lg font-bold text-gray-900">Estimation Ready</h3>
                     <p id="modal-print-subtitle" class="text-xs font-semibold text-gray-500 mt-1">Click below to submit estimation to Google Sheets:</p>
                 </div>
 
@@ -239,7 +239,7 @@
                 </div>
 
                 <!-- Submit Estimation Action Button -->
-                <button onclick="processSubmitEstimation()" id="btn-submit-est" class="w-full py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-2xl font-bold text-sm shadow transition flex items-center justify-center space-x-2">
+                <button onclick="processSubmitEstimation()" id="btn-submit-est" class="w-full py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-2xl font-bold text-sm shadow transition flex items-center justify-center space-x-2 active:scale-95">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
                     <span>Submit Estimation</span>
                 </button>
@@ -247,16 +247,16 @@
                 <!-- Print Options -->
                 <div id="print-options-container" class="space-y-3 pt-1">
                     <div class="flex items-center space-x-3">
-                        <button onclick="triggerReceiptPrint('a4')" class="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white rounded-full font-bold text-sm flex items-center justify-center space-x-2 shadow transition">
+                        <button onclick="triggerReceiptPrint('a4')" class="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white rounded-full font-bold text-sm flex items-center justify-center space-x-2 shadow transition active:scale-95">
                             <span>Print A4</span>
                         </button>
-                        <button onclick="triggerReceiptPrint('thermal')" class="flex-1 py-3 bg-slate-900 hover:bg-black text-white rounded-2xl font-bold text-xs flex items-center justify-center space-x-1.5 shadow transition">
+                        <button onclick="triggerReceiptPrint('thermal')" class="flex-1 py-3 bg-slate-900 hover:bg-black text-white rounded-2xl font-bold text-xs flex items-center justify-center space-x-1.5 shadow transition active:scale-95">
                             <span>Print Thermal (80mm)</span>
                         </button>
                     </div>
                 </div>
 
-                <button onclick="closeModalOnly()" id="btn-modal-close" class="w-full py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-2xl font-semibold text-sm transition mt-1">Close</button>
+                <button onclick="closeModalOnly()" id="btn-modal-close" class="w-full py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-2xl font-semibold text-sm transition mt-1 active:scale-95">Close</button>
             </div>
         </div>
     </div>
@@ -411,14 +411,14 @@
                     </div>
                     <div class="pt-1 flex justify-end space-x-2">
                         ${isEstRecord ? `
-                            <button onclick="submitOrderFromEstimate(${index})" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-2.5 py-1 rounded-lg text-xs shadow inline-flex items-center space-x-1">
+                            <button onclick="submitOrderFromEstimate(${index})" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-2.5 py-1 rounded-lg text-xs shadow inline-flex items-center space-x-1 active:scale-95">
                                 <span>Submit Order</span>
                             </button>
                         ` : ''}
-                        <button onclick="printSearchResult(${index}, 'a4')" class="bg-red-600 hover:bg-red-700 text-white font-bold px-2.5 py-1 rounded-lg text-xs shadow inline-flex items-center space-x-1">
+                        <button onclick="printSearchResult(${index}, 'a4')" class="bg-red-600 hover:bg-red-700 text-white font-bold px-2.5 py-1 rounded-lg text-xs shadow inline-flex items-center space-x-1 active:scale-95">
                             <span>A4 Print</span>
                         </button>
-                        <button onclick="printSearchResult(${index}, 'thermal')" class="bg-gray-800 hover:bg-black text-white font-bold px-2.5 py-1 rounded-lg text-xs shadow inline-flex items-center space-x-1">
+                        <button onclick="printSearchResult(${index}, 'thermal')" class="bg-gray-800 hover:bg-black text-white font-bold px-2.5 py-1 rounded-lg text-xs shadow inline-flex items-center space-x-1 active:scale-95">
                             <span>Thermal Print</span>
                         </button>
                     </div>
@@ -429,7 +429,7 @@
             if (hasMore) {
                 html += `
                     <div class="text-center pt-2 pb-1">
-                        <button onclick="loadMoreResults()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded-xl text-xs border border-gray-300 shadow-sm transition">
+                        <button onclick="loadMoreResults()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded-xl text-xs border border-gray-300 shadow-sm transition active:scale-95">
                             Load More (${searchResultsStore.length - displayLimit} remaining)
                         </button>
                     </div>
@@ -629,7 +629,7 @@
                 searchInput.value = '';
             }, 100);
 
-            document.getElementById('search-results-container').innerHTML = '<div class="text-center text-xs text-gray-400 py-6">Loading last 4 submissions from Google Sheets...</div>';
+            document.getElementById('search-results-container').innerHTML = '<div class="text-center text-xs text-gray-400 py-6">Loading submissions from Google Sheets...</div>';
             const oldScript = document.getElementById('search-script');
             if (oldScript) oldScript.remove();
 
@@ -661,8 +661,8 @@
 
         function switchTab(tab) {
             activeTab = tab;
-            document.getElementById('tab-al').className = tab === 'al' ? "flex-1 py-3 font-semibold text-center border-b-2 border-red-600 text-red-600" : "flex-1 py-3 font-semibold text-center border-b-2 border-transparent text-gray-500 hover:text-red-600";
-            document.getElementById('tab-st').className = tab === 'st' ? "flex-1 py-3 font-semibold text-center border-b-2 border-red-600 text-red-600" : "flex-1 py-3 font-semibold text-center border-b-2 border-transparent text-gray-500 hover:text-red-600";
+            document.getElementById('tab-al').className = tab === 'al' ? "flex-1 py-3 font-semibold text-center border-b-2 border-red-600 text-red-600 text-sm sm:text-base" : "flex-1 py-3 font-semibold text-center border-b-2 border-transparent text-gray-500 hover:text-red-600 text-sm sm:text-base";
+            document.getElementById('tab-st').className = tab === 'st' ? "flex-1 py-3 font-semibold text-center border-b-2 border-red-600 text-red-600 text-sm sm:text-base" : "flex-1 py-3 font-semibold text-center border-b-2 border-transparent text-gray-500 hover:text-red-600 text-sm sm:text-base";
             document.getElementById('item-label').innerText = tab === 'al' ? "Aluminum Item Weights (kg)" : "Steel Item Weights (kg)";
             render();
         }
@@ -679,8 +679,8 @@
                     div.className = "flex items-center space-x-2";
                     div.innerHTML = `
                         <span class="text-xs text-gray-400 font-medium w-12">Item ${idx + 1}</span>
-                        <input type="text" inputmode="decimal" value="${w === 0 ? '' : w}" oninput="updateWeight(${idx}, this.value)" placeholder="0.00" class="flex-1 border border-gray-200 rounded-lg p-2 text-gray-800 focus:ring-2 focus:ring-red-500 focus:outline-none">
-                        <button onclick="removeItem(${idx})" class="text-red-400 hover:text-red-600 font-bold px-2">✕</button>
+                        <input type="text" inputmode="decimal" pattern="[0-9]*" value="${w === 0 ? '' : w}" oninput="updateWeight(${idx}, this.value)" placeholder="0.00" class="flex-1 border border-gray-200 rounded-xl p-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-red-500 focus:outline-none bg-white">
+                        <button onclick="removeItem(${idx})" class="text-red-400 hover:text-red-600 font-bold px-3 py-2">✕</button>
                     `;
                     container.appendChild(div);
                 });
@@ -693,6 +693,11 @@
         function addItem() {
             data[activeTab].weights.push(0);
             render();
+            // Focus on the newly added item input for better UX on tablet/mobile
+            const inputs = document.querySelectorAll('#item-list input');
+            if (inputs.length > 0) {
+                inputs[inputs.length - 1].focus();
+            }
         }
 
         function removeItem(idx) {
@@ -977,7 +982,6 @@
                 }
             }
 
-            submitDefBtnState = true;
             submitBtn.disabled = false;
             submitBtn.innerText = "Submit Exchange";
 
