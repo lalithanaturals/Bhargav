@@ -1,124 +1,143 @@
-function doGet(e) {
-  const action = e.parameter.action;
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  
-  if (action === 'search') {
-    const query = (e.parameter.query || '').toString().trim().toLowerCase();
-    const callback = e.parameter.callback || 'handleSearchCallback';
-    const rows = sheet.getDataRange().getValues();
-    let data = [];
-    
-    if (rows.length > 1 && query !== '') {
-      const headers = rows[0];
-      for (let i = 1; i < rows.length; i++) {
-        let obj = { rowIndex: i + 1 };
-        let match = false;
-        for (let j = 0; j < headers.length; j++) {
-          let headerName = headers[j] ? headers[j].toString().trim() : 'col_' + j;
-          let val = rows[i][j];
-          obj[headerName] = val;
-          
-          if (String(val).toLowerCase().includes(query)) {
-            match = true;
-          }
-        }
-        if (match) {
-          // Fallback calculations in case fields are empty/NaN in old rows
-          if (obj.alAmount === "" || obj.alAmount === undefined || isNaN(obj.alAmount)) {
-            obj.alAmount = (parseFloat(obj.alNet || obj.alGross || 0) * 150);
-          }
-          if (obj.stAmount === "" || obj.stAmount === undefined || isNaN(obj.stAmount)) {
-            obj.stAmount = (parseFloat(obj.stNet || obj.stGross || 0) * 50);
-          }
-          if (obj.grandTotal === "" || obj.grandTotal === undefined || isNaN(obj.grandTotal)) {
-            obj.grandTotal = parseFloat(obj.alAmount) + parseFloat(obj.stAmount);
-          }
-          data.push(obj);
-        }
-      }
-      data.reverse(); 
-    }
-    
-    return ContentService.createTextOutput(callback + '(' + JSON.stringify(data) + ')')
-      .setMimeType(ContentService.MimeType.JAVASCRIPT);
-  }
-  
-  // Default action: Generate Next Exchange & Estimate IDs
-  const rows = sheet.getDataRange().getValues();
-  let maxExNum = 0;
-  let maxEstNum = 0;
-  
-  for (let i = 1; i < rows.length; i++) {
-    let row = rows[i];
-    for (let col = 0; col < row.length; col++) {
-      let val = String(row[col] || '');
-      if (val.startsWith('LNex')) {
-        let num = parseInt(val.replace('LNex', '')) || 0;
-        if (num > maxExNum) maxExNum = num;
-      } else if (val.startsWith('Est')) {
-        let num = parseInt(val.replace('Est', '')) || 0;
-        if (num > maxEstNum) maxEstNum = num;
-      }
-    }
-  }
-  
-  const nextId = 'LNex' + (maxExNum + 1);
-  const nextEstId = 'Est' + (maxEstNum + 1);
-  const responseObj = { nextId: nextId, nextEstId: nextEstId };
-  
-  const idCallback = e.parameter.callback || 'handleIdCallback';
-  return ContentService.createTextOutput(idCallback + '(' + JSON.stringify(responseObj) + ')')
-    .setMimeType(ContentService.MimeType.JAVASCRIPT);
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Exchange Calculator & Google Sheets Sync</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <style>
+        .no-print { display: block; }
+        .print-only { display: none; }
 
-function doPost(e) {
-  const lock = LockService.getScriptLock();
-  lock.tryLock(10000);
-  
-  try {
-    const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-    const params = e.parameter;
-    
-    if (sheet.getLastRow() === 0) {
-      sheet.appendRow([
-        'timestamp', 'exchangeId', 'estId', 'customerName', 'customerPhone', 
-        'alGross', 'alNet', 'alAmount', 'stGross', 'stNet', 'stAmount', 'grandTotal', 'type'
-      ]);
-    }
-    
-    const timestamp = params.timestamp || new Date().toLocaleString();
-    const exchangeId = params.exchangeId || '';
-    const estId = params.estId || '';
-    const customerName = params.customerName || '';
-    const customerPhone = params.customerPhone || '';
-    const alGross = params.alGross || 0;
-    const alNet = params.alNet || 0;
-    const alAmount = params.alAmount || 0;
-    const stGross = params.stGross || 0;
-    const stNet = params.stNet || 0;
-    const stAmount = params.stAmount || 0;
-    const grandTotal = params.grandTotal || 0;
-    const type = params.type || 'TRANSACTION';
-    
-    if (params.convertFromRow) {
-      let rowIdx = parseInt(params.convertFromRow);
-      if (rowIdx > 1) {
-        sheet.getRange(rowIdx, 2).setValue(exchangeId);
-      }
-    }
-    
-    sheet.appendRow([
-      timestamp, exchangeId, estId, customerName, customerPhone,
-      alGross, alNet, alAmount, stGross, stNet, stAmount, grandTotal, type
-    ]);
-    
-    return ContentService.createTextOutput(JSON.stringify({ status: 'success' }))
-      .setMimeType(ContentService.MimeType.JSON);
-      
-  } catch (err) {
-    return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: err.toString() }))
-      .setMimeType(ContentService.MimeType.JSON);
-  } finally {
-    lock.releaseLock();
-  }
-}
+        .receipt-container {
+            position: relative;
+            background: white;
+            z-index: 1;
+            overflow: hidden;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+        .watermark-img {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 65%;
+            max-height: 80%;
+            opacity: 0.12;
+            z-index: 0;
+            pointer-events: none;
+            object-fit: contain;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        @media print {
+            html, body {
+                height: auto !important;
+                width: 100% !important;
+                overflow: visible !important;
+                background: white !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            .no-print { display: none !important; }
+            .print-only { display: block !important; page-break-inside: avoid !important; break-inside: avoid !important; width: 100% !important; }
+
+            body.print-mode-a4 @page { size: A4 portrait; margin: 0; }
+            body.print-mode-thermal @page { size: 80mm auto; margin: 0mm !important; }
+            
+            body.print-mode-thermal .receipt-container {
+                width: 100% !important; max-width: none !important; padding: 0mm !important; border: none !important; margin: 0 !important; color: #000 !important; font-size: 12px !important; line-height: 1.25 !important;
+            }
+            body.print-mode-thermal .watermark-img { display: none !important; }
+            body.print-mode-thermal .thermal-stack { display: block !important; }
+            body.print-mode-thermal .thermal-border-bottom { border-bottom: 1.5px dashed #000 !important; padding-bottom: 5px !important; margin-bottom: 5px !important; }
+            body.print-mode-thermal .thermal-text-lg { font-size: 14px !important; font-weight: 800 !important; text-transform: uppercase; }
+            body.print-mode-thermal .thermal-text-sm { font-size: 11.5px !important; font-weight: 700 !important; }
+            body.print-mode-thermal .thermal-bold { font-weight: 800 !important; font-size: 12px !important; }
+            body.print-mode-thermal .thermal-hide-col-border { border-right: none !important; padding-right: 0 !important; }
+            body.print-mode-thermal #print-grand-total { font-size: 18px !important; font-weight: 900 !important; }
+        }
+    </style>
+</head>
+<body class="bg-rose-50 min-h-screen p-2 sm:p-4 md:p-8 font-sans">
+
+    <div id="page-loader" class="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center space-y-4 transition-opacity duration-300">
+        <div class="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+        <p class="text-sm font-bold text-gray-700 tracking-wide">Loading application and IDs...</p>
+    </div>
+
+    <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden no-print border border-red-100">
+        <div class="bg-red-600 p-4 sm:p-6 text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div>
+                <span class="text-xs font-semibold uppercase tracking-wider text-red-200 block mb-0.5">Lalitha Naturals</span>
+                <h1 class="text-xl sm:text-2xl font-bold tracking-wide">Exchange Calculator</h1>
+            </div>
+            <div class="flex items-center space-x-3 w-full sm:w-auto justify-between sm:justify-end">
+                <button type="button" id="btn-search-modal" onclick="openSearchModal()" disabled class="bg-red-700 opacity-50 cursor-not-allowed text-white font-bold px-3 py-2 rounded-lg text-xs flex items-center space-x-1 shadow relative z-20">
+                    <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    <span class="pointer-events-none">Search Record</span>
+                </button>
+                <div class="text-right">
+                    <span class="text-xs text-red-200 block uppercase font-semibold">Next ID</span>
+                    <span id="app-exchange-id" class="text-sm font-extrabold bg-red-700 px-2.5 py-1 rounded-full text-white inline-block mt-0.5">...</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-4 sm:p-6 space-y-4 sm:space-y-6">
+            <div class="bg-red-50/50 p-3 sm:p-4 rounded-xl border border-red-100 space-y-3">
+                <h3 class="text-sm font-bold text-red-800 uppercase tracking-wide border-b border-red-100 pb-2">Customer Information</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">Name *</label>
+                        <input type="text" id="cust-name" disabled placeholder="Loading..." autocapitalize="words" onkeydown="handleNameKeydown(event)" class="w-full border rounded-xl p-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-red-500 focus:outline-none bg-gray-100 cursor-not-allowed">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">Mobile * (10 Digits)</label>
+                        <input type="text" id="cust-phone" disabled inputmode="numeric" pattern="[0-9]*" maxlength="10" placeholder="Loading..." oninput="validatePhoneInput(this)" onkeydown="handlePhoneKeydown(event)" class="w-full border rounded-xl p-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-red-500 focus:outline-none bg-gray-100 cursor-not-allowed">
+                        <span id="phone-error" class="text-[11px] text-red-600 font-semibold hidden block mt-1">Mobile number must contain exactly 10 digits.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex border-b border-gray-200">
+                <button type="button" id="tab-al" onclick="switchTab('al')" class="flex-1 py-3 font-semibold text-center border-b-2 border-red-600 text-red-600 text-sm sm:text-base">Aluminum (₹150/kg)</button>
+                <button type="button" id="tab-st" onclick="switchTab('st')" class="flex-1 py-3 font-semibold text-center border-b-2 border-transparent text-gray-500 hover:text-red-600 text-sm sm:text-base">Steel (₹50/kg)</button>
+            </div>
+
+            <div>
+                <div class="flex justify-between items-center mb-3">
+                    <label class="text-sm font-semibold text-gray-700" id="item-label">Aluminum Item Weights (kg)</label>
+                    <button type="button" id="btn-add-item" onclick="addItem()" disabled class="text-xs bg-gray-100 text-gray-400 font-bold px-3 py-1.5 rounded-lg border border-gray-200 cursor-not-allowed">+ Add Item</button>
+                </div>
+                <div id="item-list" class="space-y-2.5 max-h-60 overflow-y-auto p-1"></div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Number of Handles</label>
+                <div class="flex items-center space-x-4 bg-red-50/40 p-3 rounded-xl border border-red-100">
+                    <button type="button" id="btn-handle-minus" disabled onclick="updateHandles(-1)" class="w-11 h-11 bg-gray-100 border border-gray-200 rounded-xl font-bold text-gray-300 cursor-not-allowed flex items-center justify-center text-lg">-</button>
+                    <span id="handle-count" class="text-lg font-bold text-gray-800 flex-1 text-center">0</span>
+                    <button type="button" id="btn-handle-plus" disabled onclick="updateHandles(1)" class="w-11 h-11 bg-gray-100 border border-gray-200 rounded-xl font-bold text-gray-300 cursor-not-allowed flex items-center justify-center text-lg">+</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 sm:gap-4">
+                <div class="bg-red-50 border border-red-100 p-3 sm:p-4 rounded-xl text-center">
+                    <span class="text-[11px] sm:text-xs text-red-600 font-bold uppercase tracking-wide">Aluminum Total</span>
+                    <div id="al-total-display" class="text-lg sm:text-xl font-extrabold text-red-700 mt-1">₹0.00</div>
+                </div>
+                <div class="bg-slate-50 border border-slate-200 p-3 sm:p-4 rounded-xl text-center">
+                    <span class="text-[11px] sm:text-xs text-slate-600 font-bold uppercase tracking-wide">Steel Total</span>
+                    <div id="st-total-display" class="text-lg sm:text-xl font-extrabold text-slate-800 mt-1">₹0.00</div>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                <button type="button" id="btn-refresh" disabled onclick="resetForm()" class="bg-gray-100 text-gray-400 font-bold py-3.5 px-4 rounded-xl border border-gray-300 cursor-not-allowed flex items-center justify-center space-x-1.5 sm:w-28">
+                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-
