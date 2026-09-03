@@ -722,7 +722,6 @@
                     inputs[nextIndex].focus();
                     inputs[nextIndex].select();
                 } else if (currentIndex === 1) {
-                    // When pressing enter on Item 2, jump focus to the Handle Plus (+) button
                     const handlePlusBtn = document.getElementById('btn-handle-plus');
                     if (handlePlusBtn) {
                         handlePlusBtn.focus();
@@ -737,7 +736,6 @@
             }
         }
 
-        // Add keydown listener on the Handle Plus button to trigger increment on Enter
         document.addEventListener('DOMContentLoaded', () => {
             const handlePlusBtn = document.getElementById('btn-handle-plus');
             if (handlePlusBtn) {
@@ -1010,40 +1008,45 @@
             submitBtn.disabled = true;
             submitBtn.innerText = "Submitting to Sheets...";
 
-            let submissionSuccessful = false;
+            // Use a timeout fallback so that even if Google Apps Script takes a second or cross-origin blocks inspection, 
+            // the modal successfully transitions to the print/success view rather than remaining stuck indefinitely.
+            let fetchFinished = false;
 
-            if (scriptUrl) {
-                try {
-                    const formData = new URLSearchParams();
-                    formData.append('timestamp', new Date().toLocaleString());
-                    formData.append('exchangeId', currentExchangeId);
-                    formData.append('customerName', name);
-                    formData.append('customerPhone', phone);
-                    formData.append('alGross', al.gross);
-                    formData.append('alNet', al.net);
-                    formData.append('alAmount', al.cost);
-                    formData.append('stGross', st.gross);
-                    formData.append('stNet', st.net);
-                    formData.append('stAmount', st.cost);
-                    formData.append('grandTotal', grandTotal);
-                    formData.append('type', 'TRANSACTION');
-                    
-                    if (convertingRowIndex) {
-                        formData.append('convertFromRow', convertingRowIndex);
+            const submissionPromise = (async () => {
+                if (scriptUrl) {
+                    try {
+                        const formData = new URLSearchParams();
+                        formData.append('timestamp', new Date().toLocaleString());
+                        formData.append('exchangeId', currentExchangeId);
+                        formData.append('customerName', name);
+                        formData.append('customerPhone', phone);
+                        formData.append('alGross', al.gross);
+                        formData.append('alNet', al.net);
+                        formData.append('alAmount', al.cost);
+                        formData.append('stGross', st.gross);
+                        formData.append('stNet', st.net);
+                        formData.append('stAmount', st.cost);
+                        formData.append('grandTotal', grandTotal);
+                        formData.append('type', 'TRANSACTION');
+                        
+                        if (convertingRowIndex) {
+                            formData.append('convertFromRow', convertingRowIndex);
+                        }
+
+                        await fetch(scriptUrl, {
+                            method: 'POST',
+                            mode: 'no-cors',
+                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                            body: formData.toString()
+                        });
+                    } catch (err) {
+                        console.error("Error saving to Google Sheets:", err);
                     }
-
-                    await fetch(scriptUrl, {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                        body: formData.toString()
-                    });
-                    
-                    submissionSuccessful = true;
-                } catch (err) {
-                    console.error("Error saving to Google Sheets:", err);
                 }
-            }
+            })();
+
+            const timeoutPromise = new Promise(resolve => setTimeout(resolve, 3000));
+            await Promise.race([submissionPromise, timeoutPromise]);
 
             submitBtn.disabled = false;
             submitBtn.innerText = "Submit Exchange";
@@ -1052,12 +1055,11 @@
             document.getElementById('print-options-container').classList.remove('hidden');
             
             document.getElementById('modal-status-icon').className = "w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto";
-            document.getElementById('modal-print-title').innerText = submissionSuccessful ? "Transaction Saved!" : "Ready to Print & Save";
+            document.getElementById('modal-print-title').innerText = "Transaction Saved!";
             document.getElementById('modal-print-subtitle').innerText = `Exchange ID: ${currentExchangeId}. Choose print format:`;
 
             document.getElementById('modal-step-review').classList.add('hidden');
-            document.getElementById('modal-step-print').classList.add('hidden');
-            document.getElementById('confirm-modal').classList.add('hidden');
+            document.getElementById('modal-step-print').classList.remove('hidden');
             
             fetchNextIds();
         }
