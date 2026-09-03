@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Exchange Calculator & Google Sheets Sync</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Barcode Library -->
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <style>
         .no-print { display: block; }
@@ -68,13 +66,11 @@
 </head>
 <body class="bg-rose-50 min-h-screen p-2 sm:p-4 md:p-8 font-sans">
 
-    <!-- FULL PAGE LOADING OVERLAY -->
     <div id="page-loader" class="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center space-y-4 transition-opacity duration-300">
         <div class="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
         <p class="text-sm font-bold text-gray-700 tracking-wide">Loading application and IDs...</p>
     </div>
 
-    <!-- ================= APP INTERFACE (NO-PRINT) ================= -->
     <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden no-print border border-red-100">
         <div class="bg-red-600 p-4 sm:p-6 text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div>
@@ -159,7 +155,6 @@
         </div>
     </div>
 
-    <!-- SEARCH MODAL (Removed outside click closure so it only closes via explicit close button) -->
     <div id="search-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-3 sm:p-4 z-50 hidden no-print">
         <div class="bg-white rounded-2xl max-w-lg w-full p-4 sm:p-6 shadow-2xl space-y-4 max-h-[85vh] flex flex-col">
             <div class="flex justify-between items-center border-b pb-3">
@@ -177,11 +172,9 @@
         </div>
     </div>
 
-    <!-- SUBMISSION CONFIRMATION MODAL -->
     <div id="confirm-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-3 sm:p-4 z-50 hidden no-print">
         <div class="bg-white rounded-3xl max-w-md w-full p-4 sm:p-6 shadow-2xl space-y-4 text-center">
             
-            <!-- Step 1 View: Review & Submit (Order Mode) -->
             <div id="modal-step-review" class="space-y-4">
                 <h3 class="text-base sm:text-lg font-bold text-gray-900 border-b pb-2">Confirm Transaction Submission</h3>
                 
@@ -215,7 +208,6 @@
                 </div>
             </div>
 
-            <!-- Step 2 View: Post-Submission or Estimation Options -->
             <div id="modal-step-print" class="hidden space-y-4">
                 <div id="modal-status-icon" class="w-12 h-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
@@ -249,13 +241,11 @@
                     </div>
                 </div>
 
-                <!-- Submit Estimation Action Button -->
                 <button type="button" onclick="processSubmitEstimation()" id="btn-submit-est" class="w-full py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-2xl font-bold text-sm shadow transition flex items-center justify-center space-x-2 active:scale-95">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
                     <span>Submit Estimation</span>
                 </button>
 
-                <!-- Print Options -->
                 <div id="print-options-container" class="space-y-3 pt-1">
                     <div class="flex items-center space-x-3">
                         <button type="button" onclick="triggerReceiptPrint('a4')" class="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white rounded-full font-bold text-sm flex items-center justify-center space-x-2 shadow transition active:scale-95">
@@ -267,13 +257,11 @@
                     </div>
                 </div>
 
-                <!-- Submit Another Form Button -->
                 <button type="button" onclick="resetForm()" class="w-full py-3 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-bold text-sm shadow transition mt-1 active:scale-95">Submit Another Form</button>
             </div>
         </div>
     </div>
 
-    <!-- PRINT-ONLY RECEIPT LAYOUT -->
     <div class="print-only max-w-2xl mx-auto p-3 border-2 border-red-700 rounded-lg receipt-container">
         <img src="./4L.png" alt="Watermark Logo" class="watermark-img">
         <div class="relative z-10">
@@ -295,9 +283,7 @@
                 <div><span class="font-bold text-gray-700 thermal-bold">Mobile:</span> <span id="print-cust-phone" class="font-semibold"></span></div>
             </div>
 
-            <!-- Material Sections Container -->
             <div id="print-materials-grid" class="grid grid-cols-2 gap-4 text-xs thermal-stack thermal-text-sm">
-                <!-- Aluminum Section -->
                 <div id="print-al-section" class="border-r pr-3 thermal-hide-col-border thermal-border-bottom">
                     <h2 class="font-bold text-xs border-b pb-1 mb-1.5 text-red-700 thermal-text-lg">Aluminum (₹150.00 / kg)</h2>
                     <div class="space-y-0.5 mb-2" id="print-al-items"></div>
@@ -309,7 +295,6 @@
                     </div>
                 </div>
 
-                <!-- Steel Section -->
                 <div id="print-st-section" class="thermal-border-bottom">
                     <h2 class="font-bold text-xs border-b pb-1 mb-1.5 text-gray-800 thermal-text-lg">Steel (₹50.00 / kg)</h2>
                     <div class="space-y-0.5 mb-2" id="print-st-items"></div>
@@ -334,7 +319,6 @@
         </div>
     </div>
 
-    <!-- App Logic -->
     <script>
         const scriptUrl = "https://script.google.com/macros/s/AKfycby_cn4b6S1RgLakDA5wUA7kch6E0QVBLfmZc6zSFx2kPRVqf6cDlHrH8meIqjDDAt-j/exec";
         const rates = { al: 150.00, st: 50.00 };
@@ -720,7 +704,7 @@
             document.getElementById('print-grand-total').innerText = `₹${grandTotal.toFixed(2)}`;
 
             renderSimpleBarcode(grandTotal);
-            closeSearchModal();
+            // Note: Search popup remains open when printing or acting on records.
             setTimeout(() => {
                 window.print();
             }, 300);
