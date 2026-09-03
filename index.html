@@ -562,7 +562,7 @@
             document.getElementById('print-grand-total').innerText = `₹${grandTotal.toFixed(2)}`;
 
             renderSimpleBarcode(grandTotal);
-            window.print();
+            // Removed automatic window.print() to prevent browser pop-up block warnings when browsing search records
         }
 
         function renderSimpleBarcode(val) {
