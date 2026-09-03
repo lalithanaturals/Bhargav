@@ -76,7 +76,7 @@
                 <h1 class="text-xl sm:text-2xl font-bold tracking-wide">Exchange Calculator</h1>
             </div>
             <div class="flex items-center space-x-3 w-full sm:w-auto justify-between sm:justify-end">
-                <button onclick="openSearchModal()" type="button" class="bg-red-700 hover:bg-red-800 text-white font-bold px-3 py-2 rounded-lg text-xs flex items-center space-x-1 shadow cursor-pointer relative z-20 active:scale-95 transition-transform">
+                <button type="button" onclick="openSearchModal()" class="bg-red-700 hover:bg-red-800 text-white font-bold px-3 py-2 rounded-lg text-xs flex items-center space-x-1 shadow cursor-pointer relative z-20 active:scale-95 transition-transform">
                     <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     <span class="pointer-events-none">Search Record</span>
                 </button>
@@ -104,14 +104,14 @@
             </div>
 
             <div class="flex border-b border-gray-200">
-                <button id="tab-al" onclick="switchTab('al')" class="flex-1 py-3 font-semibold text-center border-b-2 border-red-600 text-red-600 text-sm sm:text-base">Aluminum (₹150/kg)</button>
-                <button id="tab-st" onclick="switchTab('st')" class="flex-1 py-3 font-semibold text-center border-b-2 border-transparent text-gray-500 hover:text-red-600 text-sm sm:text-base">Steel (₹50/kg)</button>
+                <button type="button" id="tab-al" onclick="switchTab('al')" class="flex-1 py-3 font-semibold text-center border-b-2 border-red-600 text-red-600 text-sm sm:text-base">Aluminum (₹150/kg)</button>
+                <button type="button" id="tab-st" onclick="switchTab('st')" class="flex-1 py-3 font-semibold text-center border-b-2 border-transparent text-gray-500 hover:text-red-600 text-sm sm:text-base">Steel (₹50/kg)</button>
             </div>
 
             <div>
                 <div class="flex justify-between items-center mb-3">
                     <label class="text-sm font-semibold text-gray-700" id="item-label">Aluminum Item Weights (kg)</label>
-                    <button onclick="addItem()" class="text-xs bg-red-50 text-red-600 font-bold px-3 py-1.5 rounded-lg border border-red-200 hover:bg-red-100 active:scale-95 transition-transform">+ Add Item</button>
+                    <button type="button" onclick="addItem()" class="text-xs bg-red-50 text-red-600 font-bold px-3 py-1.5 rounded-lg border border-red-200 hover:bg-red-100 active:scale-95 transition-transform">+ Add Item</button>
                 </div>
                 <div id="item-list" class="space-y-2.5 max-h-60 overflow-y-auto p-1"></div>
             </div>
@@ -119,9 +119,9 @@
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Number of Handles</label>
                 <div class="flex items-center space-x-4 bg-red-50/40 p-3 rounded-xl border border-red-100">
-                    <button onclick="updateHandles(-1)" class="w-11 h-11 bg-white border border-gray-200 rounded-xl font-bold text-gray-700 shadow-sm active:bg-gray-100 active:scale-95 transition-transform flex items-center justify-center text-lg">-</button>
+                    <button type="button" onclick="updateHandles(-1)" class="w-11 h-11 bg-white border border-gray-200 rounded-xl font-bold text-gray-700 shadow-sm active:bg-gray-100 active:scale-95 transition-transform flex items-center justify-center text-lg">-</button>
                     <span id="handle-count" class="text-lg font-bold text-gray-800 flex-1 text-center">0</span>
-                    <button id="btn-handle-plus" onclick="updateHandles(1)" class="w-11 h-11 bg-white border border-gray-200 rounded-xl font-bold text-gray-700 shadow-sm active:bg-gray-100 active:scale-95 transition-transform flex items-center justify-center text-lg focus:ring-2 focus:ring-red-500 focus:outline-none">+</button>
+                    <button type="button" id="btn-handle-plus" onclick="updateHandles(1)" class="w-11 h-11 bg-white border border-gray-200 rounded-xl font-bold text-gray-700 shadow-sm active:bg-gray-100 active:scale-95 transition-transform flex items-center justify-center text-lg focus:ring-2 focus:ring-red-500 focus:outline-none">+</button>
                 </div>
             </div>
 
@@ -137,15 +137,15 @@
             </div>
 
             <div class="flex flex-col sm:flex-row gap-3 pt-2">
-                <button onclick="resetForm()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3.5 px-4 rounded-xl border border-gray-300 transition flex items-center justify-center space-x-1.5 sm:w-28 active:scale-95">
+                <button type="button" onclick="resetForm()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3.5 px-4 rounded-xl border border-gray-300 transition flex items-center justify-center space-x-1.5 sm:w-28 active:scale-95">
                     <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                     <span>Refresh</span>
                 </button>
-                <button onclick="handleGetEstimation()" class="flex-1 bg-amber-600 hover:bg-amber-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg transition flex items-center justify-center space-x-2 active:scale-95">
+                <button type="button" onclick="handleGetEstimation()" class="flex-1 bg-amber-600 hover:bg-amber-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg transition flex items-center justify-center space-x-2 active:scale-95">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
                     <span>Get Estimation</span>
                 </button>
-                <button onclick="handleSubmitOrder()" id="btn-submit" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg transition flex items-center justify-center space-x-2 active:scale-95">
+                <button type="button" onclick="handleSubmitOrder()" id="btn-submit" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg transition flex items-center justify-center space-x-2 active:scale-95">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                     <span>Submit Order</span>
                 </button>
@@ -158,12 +158,12 @@
         <div class="bg-white rounded-2xl max-w-lg w-full p-4 sm:p-6 shadow-2xl space-y-4 max-h-[85vh] flex flex-col">
             <div class="flex justify-between items-center border-b pb-3">
                 <h3 class="text-base sm:text-lg font-bold text-gray-900">Search Records</h3>
-                <button onclick="closeSearchModal()" class="text-gray-400 hover:text-gray-600 font-bold text-xl px-2">✕</button>
+                <button type="button" onclick="closeSearchModal()" class="text-gray-400 hover:text-gray-600 font-bold text-xl px-2">✕</button>
             </div>
             
             <div class="flex space-x-2">
                 <input type="text" id="search-input" oninput="executeSearch()" onkeydown="if(event.key === 'Enter') executeSearch()" placeholder="Enter ID (LNex1 / Est1) or Mobile" class="flex-1 border rounded-xl p-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-red-500 focus:outline-none bg-white">
-                <button onclick="executeSearch()" id="btn-search-trigger" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-xl font-semibold text-sm active:scale-95">Search</button>
+                <button type="button" onclick="executeSearch()" id="btn-search-trigger" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-xl font-semibold text-sm active:scale-95">Search</button>
             </div>
 
             <div id="search-results-container" class="flex-1 overflow-y-auto space-y-3 pt-2">
@@ -202,8 +202,8 @@
                 </div>
 
                 <div class="flex space-x-3 pt-2">
-                    <button onclick="closeModal()" class="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-2xl font-semibold text-sm active:scale-95">Cancel</button>
-                    <button onclick="processSubmitOrder()" id="btn-process-submit" class="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-bold text-sm shadow active:scale-95">
+                    <button type="button" onclick="closeModal()" class="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-2xl font-semibold text-sm active:scale-95">Cancel</button>
+                    <button type="button" onclick="processSubmitOrder()" id="btn-process-submit" class="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-bold text-sm shadow active:scale-95">
                         <span>Submit Exchange</span>
                     </button>
                 </div>
@@ -239,7 +239,7 @@
                 </div>
 
                 <!-- Submit Estimation Action Button -->
-                <button onclick="processSubmitEstimation()" id="btn-submit-est" class="w-full py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-2xl font-bold text-sm shadow transition flex items-center justify-center space-x-2 active:scale-95">
+                <button type="button" onclick="processSubmitEstimation()" id="btn-submit-est" class="w-full py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-2xl font-bold text-sm shadow transition flex items-center justify-center space-x-2 active:scale-95">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
                     <span>Submit Estimation</span>
                 </button>
@@ -247,16 +247,16 @@
                 <!-- Print Options -->
                 <div id="print-options-container" class="space-y-3 pt-1">
                     <div class="flex items-center space-x-3">
-                        <button onclick="triggerReceiptPrint('a4')" class="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white rounded-full font-bold text-sm flex items-center justify-center space-x-2 shadow transition active:scale-95">
+                        <button type="button" onclick="triggerReceiptPrint('a4')" class="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white rounded-full font-bold text-sm flex items-center justify-center space-x-2 shadow transition active:scale-95">
                             <span>Print A4</span>
                         </button>
-                        <button onclick="triggerReceiptPrint('thermal')" class="flex-1 py-3 bg-slate-900 hover:bg-black text-white rounded-2xl font-bold text-xs flex items-center justify-center space-x-1.5 shadow transition active:scale-95">
+                        <button type="button" onclick="triggerReceiptPrint('thermal')" class="flex-1 py-3 bg-slate-900 hover:bg-black text-white rounded-2xl font-bold text-xs flex items-center justify-center space-x-1.5 shadow transition active:scale-95">
                             <span>Print Thermal (80mm)</span>
                         </button>
                     </div>
                 </div>
 
-                <button onclick="closeModalOnly()" id="btn-modal-close" class="w-full py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-2xl font-semibold text-sm transition mt-1 active:scale-95">Close</button>
+                <button type="button" onclick="closeModalOnly()" id="btn-modal-close" class="w-full py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-2xl font-semibold text-sm transition mt-1 active:scale-95">Close</button>
             </div>
         </div>
     </div>
@@ -433,14 +433,14 @@
                     </div>
                     <div class="pt-1 flex justify-end space-x-2">
                         ${isEstRecord ? `
-                            <button onclick="submitOrderFromEstimate(${index})" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-2.5 py-1 rounded-lg text-xs shadow inline-flex items-center space-x-1 active:scale-95">
+                            <button type="button" onclick="submitOrderFromEstimate(${index})" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-2.5 py-1 rounded-lg text-xs shadow inline-flex items-center space-x-1 active:scale-95">
                                 <span>Submit Order</span>
                             </button>
                         ` : ''}
-                        <button onclick="printSearchResult(${index}, 'a4')" class="bg-red-600 hover:bg-red-700 text-white font-bold px-2.5 py-1 rounded-lg text-xs shadow inline-flex items-center space-x-1 active:scale-95">
+                        <button type="button" onclick="printSearchResult(${index}, 'a4')" class="bg-red-600 hover:bg-red-700 text-white font-bold px-2.5 py-1 rounded-lg text-xs shadow inline-flex items-center space-x-1 active:scale-95">
                             <span>A4 Print</span>
                         </button>
-                        <button onclick="printSearchResult(${index}, 'thermal')" class="bg-gray-800 hover:bg-black text-white font-bold px-2.5 py-1 rounded-lg text-xs shadow inline-flex items-center space-x-1 active:scale-95">
+                        <button type="button" onclick="printSearchResult(${index}, 'thermal')" class="bg-gray-800 hover:bg-black text-white font-bold px-2.5 py-1 rounded-lg text-xs shadow inline-flex items-center space-x-1 active:scale-95">
                             <span>Thermal Print</span>
                         </button>
                     </div>
@@ -451,7 +451,7 @@
             if (hasMore) {
                 html += `
                     <div class="text-center pt-2 pb-1">
-                        <button onclick="loadMoreResults()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded-xl text-xs border border-gray-300 shadow-sm transition active:scale-95">
+                        <button type="button" onclick="loadMoreResults()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded-xl text-xs border border-gray-300 shadow-sm transition active:scale-95">
                             Load More (${searchResultsStore.length - displayLimit} remaining)
                         </button>
                     </div>
@@ -702,7 +702,7 @@
                     div.innerHTML = `
                         <span class="text-xs text-gray-400 font-medium w-12">Item ${idx + 1}</span>
                         <input type="text" inputmode="decimal" pattern="[0-9]*" value="${w === 0 ? '' : w}" oninput="updateWeight(${idx}, this.value)" onkeydown="handleItemKeydown(event, ${idx})" placeholder="0.00" class="flex-1 border border-gray-200 rounded-xl p-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-red-500 focus:outline-none bg-white item-input">
-                        <button onclick="removeItem(${idx})" class="text-red-400 hover:text-red-600 font-bold px-3 py-2">✕</button>
+                        <button type="button" onclick="removeItem(${idx})" class="text-red-400 hover:text-red-600 font-bold px-3 py-2">✕</button>
                     `;
                     container.appendChild(div);
                 });
@@ -1008,10 +1008,6 @@
             submitBtn.disabled = true;
             submitBtn.innerText = "Submitting to Sheets...";
 
-            // Use a timeout fallback so that even if Google Apps Script takes a second or cross-origin blocks inspection, 
-            // the modal successfully transitions to the print/success view rather than remaining stuck indefinitely.
-            let fetchFinished = false;
-
             const submissionPromise = (async () => {
                 if (scriptUrl) {
                     try {
@@ -1045,7 +1041,7 @@
                 }
             })();
 
-            const timeoutPromise = new Promise(resolve => setTimeout(resolve, 3000));
+            const timeoutPromise = new Promise(resolve => setTimeout(resolve, 2000));
             await Promise.race([submissionPromise, timeoutPromise]);
 
             submitBtn.disabled = false;
@@ -1067,7 +1063,9 @@
         function triggerReceiptPrint(mode) {
             setPrintMode(mode);
             calculate();
-            closeModal();
+            document.getElementById('confirm-modal').classList.add('hidden');
+            
+            // Allow the modal to fully close and paint, then invoke print via a mobile-safe async timer
             setTimeout(() => {
                 window.print();
                 if (!isEstimationMode) {
@@ -1076,7 +1074,7 @@
                     }, 500);
                 }
                 convertingRowIndex = null;
-            }, 500);
+            }, 400);
         }
 
         function resetForm() {
