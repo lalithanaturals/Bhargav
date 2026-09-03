@@ -168,7 +168,7 @@
             </div>
             
             <div class="flex space-x-2">
-                <input type="text" id="search-input" oninput="onSearchInput()" placeholder="Start typing ID or Mobile..." class="flex-1 border rounded-xl p-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-red-500 focus:outline-none bg-white">
+                <input type="text" id="search-input" oninput="onSearchInput()" placeholder="Enter ID (LNex1 / Est1) or Mobile" class="flex-1 border rounded-xl p-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-red-500 focus:outline-none bg-white">
             </div>
 
             <div id="search-results-container" class="flex-1 overflow-y-auto space-y-3 pt-2">
@@ -507,15 +507,13 @@
 
         function renderSearchResults() {
             const container = document.getElementById('search-results-container');
-            const query = document.getElementById('search-input').value.trim().toLowerCase();
+            const query = document.getElementById('search-input').value.trim().toLowerCase().replace(/\s+/g, '');
 
             let filteredRecords = searchResultsStore;
             if (query !== '') {
                 filteredRecords = searchResultsStore.filter(r => {
-                    const recordId = (r.estId || r.exchangeId || r.id || '').toString().toLowerCase();
-                    const phone = (r.customerPhone || r.phone || '').toString().toLowerCase();
-                    const name = (r.customerName || r.name || '').toString().toLowerCase();
-                    return recordId.includes(query) || phone.includes(query) || name.includes(query);
+                    const rowString = Object.values(r).join('').toLowerCase().replace(/\s+/g, '');
+                    return rowString.includes(query);
                 });
             }
 
@@ -528,22 +526,26 @@
             const hasMore = filteredRecords.length > displayLimit;
 
             let html = visibleResults.map((r) => {
-                const recordId = r.estId || r.exchangeId || r.id || 'N/A';
-                const isEstRecord = (r.estId && r.estId.toString().trim() !== "") || (r.type === 'ESTIMATE');
+                const recordId = r.estId || r.exchangeId || r.id || r.col_1 || r.col_2 || 'N/A';
+                const isEstRecord = (r.estId && r.estId.toString().trim() !== "") || (r.type === 'ESTIMATE') || String(recordId).startsWith('Est');
                 const isConverted = r.converted === true || r.converted === 'true' || (r.exchangeId && r.exchangeId.toString().trim() !== "");
                 
-                const alGrossVal = parseFloat(r.alGross || 0);
-                const stGrossVal = parseFloat(r.stGross || 0);
+                const alGrossVal = parseFloat(r.alGross || r.col_5 || 0);
+                const stGrossVal = parseFloat(r.stGross || r.col_8 || 0);
                 const alNetVal = parseFloat(r.alNet !== undefined && !isNaN(r.alNet) ? r.alNet : alGrossVal);
                 const stNetVal = parseFloat(r.stNet !== undefined && !isNaN(r.stNet) ? r.stNet : stGrossVal);
                 
                 const alAmtVal = parseFloat(r.alAmount !== undefined && !isNaN(r.alAmount) ? r.alAmount : (alNetVal * 150));
                 const stAmtVal = parseFloat(r.stAmount !== undefined && !isNaN(r.stAmount) ? r.stAmount : (stNetVal * 50));
                 
-                let totalVal = parseFloat(r.grandTotal || r.amount || 0);
+                let totalVal = parseFloat(r.grandTotal || r.amount || r.col_11 || 0);
                 if (!totalVal || totalVal === 0 || isNaN(totalVal)) {
                     totalVal = alAmtVal + stAmtVal;
                 }
+
+                const custName = r.customerName || r.name || r.col_3 || 'N/A';
+                const custPhone = r.customerPhone || r.phone || r.col_4 || 'N/A';
+                const timestamp = r.timestamp || r.date || r.col_0 || 'N/A';
 
                 const originalIndex = searchResultsStore.indexOf(r);
 
@@ -553,8 +555,8 @@
                         <span>${recordId} ${isEstRecord ? (isConverted ? '(ESTIMATE - SUBMITTED)' : '(ESTIMATE)') : '(EXCHANGE)'}</span>
                         <span>₹${totalVal.toFixed(2)}</span>
                     </div>
-                    <div class="text-gray-700"><span class="font-semibold">Name:</span> ${r.customerName || r.name || 'N/A'} (${r.customerPhone || r.phone || 'N/A'})</div>
-                    <div class="text-gray-500 text-[10px]"><span class="font-semibold">Date:</span> ${r.timestamp || r.date || 'N/A'}</div>
+                    <div class="text-gray-700"><span class="font-semibold">Name:</span> ${custName} (${custPhone})</div>
+                    <div class="text-gray-500 text-[10px]"><span class="font-semibold">Date:</span> ${timestamp}</div>
                     <div class="border-t ${isEstRecord && !isConverted ? 'border-amber-200' : 'border-red-100'} pt-1.5 flex justify-between text-gray-600">
                         <span>AL Net: ${alNetVal.toFixed(2)} kg (₹${alAmtVal.toFixed(2)})</span>
                         <span>Steel Net: ${stNetVal.toFixed(2)} kg (₹${stAmtVal.toFixed(2)})</span>
@@ -605,11 +607,11 @@
         }
 
         function populateFormFromRecord(r) {
-            document.getElementById('cust-name').value = r.customerName || r.name || '';
-            document.getElementById('cust-phone').value = r.customerPhone || r.phone || '';
+            document.getElementById('cust-name').value = r.customerName || r.name || r.col_3 || '';
+            document.getElementById('cust-phone').value = r.customerPhone || r.phone || r.col_4 || '';
 
-            const alNet = parseFloat(r.alNet || r.alGross || 0);
-            const stNet = parseFloat(r.stNet || r.stGross || 0);
+            const alNet = parseFloat(r.alNet || r.alGross || r.col_6 || 0);
+            const stNet = parseFloat(r.stNet || r.stGross || r.col_9 || 0);
 
             data.al.weights = alNet > 0 ? [alNet] : [0, 0];
             data.al.handles = 0;
@@ -635,8 +637,8 @@
 
             setPrintMode(mode);
 
-            const recordId = r.estId || r.exchangeId || r.id || 'N/A';
-            const isEstRecord = (r.estId && r.estId.toString().trim() !== "") || (r.type === 'ESTIMATE');
+            const recordId = r.estId || r.exchangeId || r.id || r.col_1 || r.col_2 || 'N/A';
+            const isEstRecord = (r.estId && r.estId.toString().trim() !== "") || (r.type === 'ESTIMATE') || String(recordId).startsWith('Est');
             isEstimationMode = isEstRecord;
 
             const duplicateBadge = document.getElementById('print-duplicate-badge');
@@ -652,14 +654,14 @@
             duplicateBadge.classList.remove('hidden');
 
             document.getElementById('print-exchange-id').innerText = recordId;
-            document.getElementById('print-cust-name').innerText = r.customerName || r.name || '';
-            document.getElementById('print-cust-phone').innerText = r.customerPhone || r.phone || '';
-            document.getElementById('print-date').innerText = "Date: " + (r.timestamp || r.date || '');
+            document.getElementById('print-cust-name').innerText = r.customerName || r.name || r.col_3 || '';
+            document.getElementById('print-cust-phone').innerText = r.customerPhone || r.phone || r.col_4 || '';
+            document.getElementById('print-date').innerText = "Date: " + (r.timestamp || r.date || r.col_0 || '');
 
-            const alGross = parseFloat(r.alGross || 0);
+            const alGross = parseFloat(r.alGross || r.col_5 || 0);
             const alNet = parseFloat(r.alNet !== undefined && !isNaN(r.alNet) ? r.alNet : alGross);
             const alAmt = parseFloat(r.alAmount !== undefined && !isNaN(r.alAmount) ? r.alAmount : (alNet * 150));
-            const stGross = parseFloat(r.stGross || 0);
+            const stGross = parseFloat(r.stGross || r.col_8 || 0);
             const stNet = parseFloat(r.stNet !== undefined && !isNaN(r.stNet) ? r.stNet : stGross);
             const stAmt = parseFloat(r.stAmount !== undefined && !isNaN(r.stAmount) ? r.stAmount : (stNet * 50));
 
@@ -711,7 +713,7 @@
                 stSection.className = "thermal-border-bottom";
             }
 
-            let grandTotal = parseFloat(r.grandTotal || r.amount || 0);
+            let grandTotal = parseFloat(r.grandTotal || r.amount || r.col_11 || 0);
             if (!grandTotal || grandTotal === 0 || isNaN(grandTotal)) {
                 grandTotal = alAmt + stAmt;
             }
