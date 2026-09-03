@@ -562,7 +562,10 @@
             document.getElementById('print-grand-total').innerText = `₹${grandTotal.toFixed(2)}`;
 
             renderSimpleBarcode(grandTotal);
-            // Removed automatic window.print() to prevent browser pop-up block warnings when browsing search records
+            closeSearchModal();
+            setTimeout(() => {
+                window.print();
+            }, 300);
         }
 
         function renderSimpleBarcode(val) {
@@ -974,6 +977,7 @@
                 }
             }
 
+            submitDefBtnState = true;
             submitBtn.disabled = false;
             submitBtn.innerText = "Submit Exchange";
 
@@ -993,15 +997,16 @@
         function triggerReceiptPrint(mode) {
             setPrintMode(mode);
             calculate();
-            window.print();
-            
             closeModal();
-            if (!isEstimationMode) {
-                setTimeout(() => {
-                    resetForm();
-                }, 500);
-            }
-            convertingRowIndex = null;
+            setTimeout(() => {
+                window.print();
+                if (!isEstimationMode) {
+                    setTimeout(() => {
+                        resetForm();
+                    }, 500);
+                }
+                convertingRowIndex = null;
+            }, 250);
         }
 
         function resetForm() {
