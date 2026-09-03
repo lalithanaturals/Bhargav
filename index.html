@@ -190,18 +190,19 @@
                     <div><span class="font-semibold">Exchange ID to Assign:</span> <span id="modal-exchange-id" class="font-bold text-red-600"></span></div>
                     <div><span class="font-semibold">Name:</span> <span id="modal-cust-name-display"></span></div>
                     <div><span class="font-semibold">Mobile:</span> <span id="modal-cust-phone-display"></span></div>
-                    <div class="border-t border-red-100 pt-1 flex justify-between">
-                        <span>Aluminum Net Weight:</span> <span id="modal-al-net" class="font-semibold"></span>
+                    
+                    <div id="modal-al-block" class="border-t border-red-100 pt-1 space-y-1">
+                        <div class="flex justify-between"><span>Aluminum Gross:</span> <span id="modal-al-gross" class="font-semibold"></span></div>
+                        <div class="flex justify-between"><span>Handles Deduction:</span> <span id="modal-al-handles" class="font-semibold"></span></div>
+                        <div class="flex justify-between"><span>Aluminum Amount:</span> <span id="modal-al-cost" class="font-semibold"></span></div>
                     </div>
-                    <div class="flex justify-between">
-                        <span>Aluminum Amount:</span> <span id="modal-al-cost" class="font-semibold"></span>
+                    
+                    <div id="modal-st-block" class="border-t border-red-100 pt-1 space-y-1">
+                        <div class="flex justify-between"><span>Steel Gross:</span> <span id="modal-st-gross" class="font-semibold"></span></div>
+                        <div class="flex justify-between"><span>Handles Deduction:</span> <span id="modal-st-handles" class="font-semibold"></span></div>
+                        <div class="flex justify-between"><span>Steel Amount:</span> <span id="modal-st-cost" class="font-semibold"></span></div>
                     </div>
-                    <div class="border-t border-red-100 pt-1 flex justify-between">
-                        <span>Steel Net Weight:</span> <span id="modal-st-net" class="font-semibold"></span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span>Steel Amount:</span> <span id="modal-st-cost" class="font-semibold"></span>
-                    </div>
+
                     <div class="border-t border-red-200 pt-2 flex justify-between text-sm sm:text-base font-bold text-red-700">
                         <span>Grand Total Payout:</span> <span id="modal-grand-total"></span>
                     </div>
@@ -230,14 +231,19 @@
                         <span id="popup-id-label">Estimation ID:</span>
                         <span id="popup-est-id" class="font-bold text-amber-700">Est1</span>
                     </div>
-                    <div class="flex justify-between">
-                        <span>Aluminum (Net):</span>
-                        <span id="popup-al-net" class="font-bold text-gray-900">0.00 kg</span>
+
+                    <div id="popup-al-block" class="space-y-1 pt-1 border-t border-amber-100">
+                        <div class="flex justify-between"><span>Aluminum Gross:</span> <span id="popup-al-gross" class="font-bold text-gray-900"></span></div>
+                        <div class="flex justify-between"><span>Handles Deduction:</span> <span id="popup-al-handles" class="font-bold text-gray-900"></span></div>
+                        <div class="flex justify-between"><span>Aluminum Amount:</span> <span id="popup-al-amount" class="font-bold text-gray-900"></span></div>
                     </div>
-                    <div class="flex justify-between">
-                        <span>Steel (Net):</span>
-                        <span id="popup-st-net" class="font-bold text-gray-900">0.00 kg</span>
+
+                    <div id="popup-st-block" class="space-y-1 pt-1 border-t border-amber-100">
+                        <div class="flex justify-between"><span>Steel Gross:</span> <span id="popup-st-gross" class="font-bold text-gray-900"></span></div>
+                        <div class="flex justify-between"><span>Handles Deduction:</span> <span id="popup-st-handles" class="font-bold text-gray-900"></span></div>
+                        <div class="flex justify-between"><span>Steel Amount:</span> <span id="popup-st-amount" class="font-bold text-gray-900"></span></div>
                     </div>
+
                     <div class="border-t border-amber-200 pt-1.5 flex justify-between font-bold text-sm text-red-700">
                         <span>Grand Total:</span>
                         <span id="popup-grand-total">₹0.00</span>
@@ -265,7 +271,8 @@
                 <!-- Submit Another Form Button -->
                 <button type="button" onclick="resetForm()" class="w-full py-3 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-bold text-sm shadow transition mt-1 active:scale-95">Submit Another Form</button>
 
-                <button type="button" onclick="closeModalOnly()" id="btn-modal-close" class="w-full py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-2xl font-semibold text-sm transition mt-1 active:scale-95">Close</button>
+                <!-- Close Modal Button -->
+                <button type="button" onclick="closeModalOnly()" class="w-full py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-2xl font-semibold text-sm transition mt-1 active:scale-95">Close</button>
             </div>
         </div>
     </div>
@@ -342,7 +349,7 @@
         let searchResultsStore = [];
         let displayLimit = 4;
         let isEstimationMode = false;
-        let isAppLoaded = false; // Status flag for loading lock
+        let isAppLoaded = false;
 
         let data = {
             al: { weights: [0, 0], handles: 0 },
@@ -350,7 +357,7 @@
         };
 
         function unlockAppInputs() {
-            isAppLoaded = true; // Mark as loaded so item cells unlock properly
+            isAppLoaded = true;
 
             const loader = document.getElementById('page-loader');
             if (loader) {
@@ -360,7 +367,6 @@
                 }, 200);
             }
 
-            // Enable inputs & buttons
             const searchModalBtn = document.getElementById('btn-search-modal');
             searchModalBtn.disabled = false;
             searchModalBtn.classList.remove('opacity-50', 'cursor-not-allowed');
@@ -932,8 +938,49 @@
 
             document.getElementById('popup-id-label').innerText = isEstimationMode ? "Estimation ID:" : "Exchange ID:";
             document.getElementById('popup-est-id').innerText = isEstimationMode ? currentEstId : currentExchangeId;
-            document.getElementById('popup-al-net').innerText = `${al.net.toFixed(2)} kg (₹${al.cost.toFixed(2)})`;
-            document.getElementById('popup-st-net').innerText = `${st.net.toFixed(2)} kg (₹${st.cost.toFixed(2)})`;
+            
+            // Transaction Review Modal (Order Mode) - 3 lines breakdown per material (Gross, Handles Deduction, Amount)
+            const modalAlBlock = document.getElementById('modal-al-block');
+            const modalStBlock = document.getElementById('modal-st-block');
+            if (al.gross > 0) {
+                modalAlBlock.style.display = 'block';
+                document.getElementById('modal-al-gross').innerText = `${al.gross.toFixed(2)} kg`;
+                document.getElementById('modal-al-handles').innerText = `${data.al.handles} hdl (-${al.hd.toFixed(2)} kg) = ${al.net.toFixed(2)} kg net`;
+                document.getElementById('modal-al-cost').innerText = `₹${al.cost.toFixed(2)}`;
+            } else {
+                modalAlBlock.style.display = 'none';
+            }
+
+            if (st.gross > 0) {
+                modalStBlock.style.display = 'block';
+                document.getElementById('modal-st-gross').innerText = `${st.gross.toFixed(2)} kg`;
+                document.getElementById('modal-st-handles').innerText = `${data.st.handles} hdl (-${st.hd.toFixed(2)} kg) = ${st.net.toFixed(2)} kg net`;
+                document.getElementById('modal-st-cost').innerText = `₹${st.cost.toFixed(2)}`;
+            } else {
+                modalStBlock.style.display = 'none';
+            }
+
+            // Estimation Modal Popup - 3 lines breakdown per material (Gross, Handles Deduction, Amount)
+            const popupAlBlock = document.getElementById('popup-al-block');
+            const popupStBlock = document.getElementById('popup-st-block');
+            if (al.gross > 0) {
+                popupAlBlock.style.display = 'block';
+                document.getElementById('popup-al-gross').innerText = `${al.gross.toFixed(2)} kg`;
+                document.getElementById('popup-al-handles').innerText = `${data.al.handles} hdl (-${al.hd.toFixed(2)} kg) = ${al.net.toFixed(2)} kg net`;
+                document.getElementById('popup-al-amount').innerText = `₹${al.cost.toFixed(2)}`;
+            } else {
+                popupAlBlock.style.display = 'none';
+            }
+
+            if (st.gross > 0) {
+                popupStBlock.style.display = 'block';
+                document.getElementById('popup-st-gross').innerText = `${st.gross.toFixed(2)} kg`;
+                document.getElementById('popup-st-handles').innerText = `${data.st.handles} hdl (-${st.hd.toFixed(2)} kg) = ${st.net.toFixed(2)} kg net`;
+                document.getElementById('popup-st-amount').innerText = `₹${st.cost.toFixed(2)}`;
+            } else {
+                popupStBlock.style.display = 'none';
+            }
+
             document.getElementById('popup-grand-total').innerText = `₹${grandTotal.toFixed(2)}`;
 
             renderSimpleBarcode(grandTotal);
@@ -1058,10 +1105,9 @@
             document.getElementById('modal-exchange-id').innerText = currentExchangeId;
             document.getElementById('modal-cust-name-display').innerText = name;
             document.getElementById('modal-cust-phone-display').innerText = phone;
-            document.getElementById('modal-al-net').innerText = `${al.net.toFixed(2)} kg`;
-            document.getElementById('modal-al-cost').innerText = `₹${al.cost.toFixed(2)}`;
-            document.getElementById('modal-st-net').innerText = `${st.net.toFixed(2)} kg`;
-            document.getElementById('modal-st-cost').innerText = `₹${st.cost.toFixed(2)}`;
+            
+            calculate();
+
             document.getElementById('modal-grand-total').innerText = `₹${(al.cost + st.cost).toFixed(2)}`;
 
             document.getElementById('modal-step-review').classList.remove('hidden');
@@ -1154,7 +1200,6 @@
         function triggerReceiptPrint(mode) {
             setPrintMode(mode);
             calculate();
-            document.getElementById('confirm-modal').classList.add('hidden');
             
             setTimeout(() => {
                 window.print();
