@@ -72,13 +72,13 @@
     <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden no-print border border-red-100">
         <div class="bg-red-600 p-6 text-white flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div>
+                <span class="text-xs font-semibold uppercase tracking-wider text-red-200 block mb-0.5">Lalitha Naturals</span>
                 <h1 class="text-2xl font-bold tracking-wide">Exchange Calculator</h1>
-                <p class="text-red-100 text-sm mt-0.5">Scrap Metal Payout & Google Sheets Sync</p>
             </div>
             <div class="flex items-center space-x-3 w-full md:w-auto justify-between md:justify-end">
-                <button onclick="openSearchModal()" class="bg-red-700 hover:bg-red-800 text-white font-bold px-3 py-1.5 rounded-lg text-xs flex items-center space-x-1 shadow">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                    <span>Search Record</span>
+                <button onclick="openSearchModal()" type="button" class="bg-red-700 hover:bg-red-800 text-white font-bold px-3 py-1.5 rounded-lg text-xs flex items-center space-x-1 shadow cursor-pointer relative z-20">
+                    <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    <span class="pointer-events-none">Search Record</span>
                 </button>
                 <div class="text-right">
                     <span class="text-xs text-red-200 block uppercase font-semibold">Next Exchange ID</span>
@@ -162,12 +162,12 @@
             </div>
             
             <div class="flex space-x-2">
-                <input type="text" id="search-input" placeholder="Enter ID (LNex1 / Est1) or Mobile Number" class="flex-1 border rounded-xl p-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-red-500 focus:outline-none">
+                <input type="text" id="search-input" oninput="executeSearch()" onkeydown="if(event.key === 'Enter') executeSearch()" placeholder="Enter ID (LNex1 / Est1) or Mobile Number" class="flex-1 border rounded-xl p-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-red-500 focus:outline-none">
                 <button onclick="executeSearch()" id="btn-search-trigger" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-xl font-semibold text-sm">Search</button>
             </div>
 
             <div id="search-results-container" class="flex-1 overflow-y-auto space-y-3 pt-2">
-                <div class="text-center text-xs text-gray-400 py-6">Enter query and click Search</div>
+                <div class="text-center text-xs text-gray-400 py-6">Loading last 4 submissions from Google Sheets...</div>
             </div>
         </div>
     </div>
@@ -244,8 +244,8 @@
                     <span>Submit Estimation</span>
                 </button>
 
-                <!-- Print Options (Initially Hidden until after Submit Estimation is clicked) -->
-                <div id="print-options-container" class="hidden space-y-3 pt-1">
+                <!-- Print Options -->
+                <div id="print-options-container" class="space-y-3 pt-1">
                     <div class="flex items-center space-x-3">
                         <button onclick="triggerReceiptPrint('a4')" class="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white rounded-full font-bold text-sm flex items-center justify-center space-x-2 shadow transition">
                             <span>Print A4</span>
@@ -265,7 +265,7 @@
     <div class="print-only max-w-2xl mx-auto p-3 border-2 border-red-700 rounded-lg receipt-container">
         <img src="./4L.png" alt="Watermark Logo" class="watermark-img">
         <div class="relative z-10">
-            <div id="print-duplicate-badge" class="hidden text-center mb-1 bg-red-100 text-red-700 font-extrabold text-xs tracking-widest border border-red-300 py-0.5 rounded uppercase">*** DUPLICATE COPY ***</div>
+            <div id="print-duplicate-badge" class="hidden text-center mb-1 bg-red-100 text-red-700 font-extrabold text-xs tracking-widest border border-red-300 py-0.5 rounded uppercase">*** ESTIMATE RECEIPT - NOT SUBMITTED ***</div>
 
             <div class="flex items-center justify-between border-b-2 border-red-600 pb-2 mb-2 thermal-border-bottom">
                 <div>
@@ -283,8 +283,10 @@
                 <div><span class="font-bold text-gray-700 thermal-bold">Mobile:</span> <span id="print-cust-phone" class="font-semibold"></span></div>
             </div>
 
-            <div class="grid grid-cols-2 gap-4 text-xs thermal-stack thermal-text-sm">
-                <div class="border-r pr-3 thermal-hide-col-border thermal-border-bottom">
+            <!-- Material Sections Container -->
+            <div id="print-materials-grid" class="grid grid-cols-2 gap-4 text-xs thermal-stack thermal-text-sm">
+                <!-- Aluminum Section -->
+                <div id="print-al-section" class="border-r pr-3 thermal-hide-col-border thermal-border-bottom">
                     <h2 class="font-bold text-xs border-b pb-1 mb-1.5 text-red-700 thermal-text-lg">Aluminum (₹150.00 / kg)</h2>
                     <div class="space-y-0.5 mb-2" id="print-al-items"></div>
                     <div class="border-t pt-1.5 space-y-0.5">
@@ -295,7 +297,8 @@
                     </div>
                 </div>
 
-                <div class="thermal-border-bottom">
+                <!-- Steel Section -->
+                <div id="print-st-section" class="thermal-border-bottom">
                     <h2 class="font-bold text-xs border-b pb-1 mb-1.5 text-gray-800 thermal-text-lg">Steel (₹50.00 / kg)</h2>
                     <div class="space-y-0.5 mb-2" id="print-st-items"></div>
                     <div class="border-t pt-1.5 space-y-0.5">
@@ -326,8 +329,9 @@
         let activeTab = 'al';
         let currentExchangeId = 'LNex1';
         let currentEstId = 'Est1';
-        let convertingRowIndex = null; // Tracks if we are converting an existing estimate row
+        let convertingRowIndex = null;
         let searchResultsStore = [];
+        let displayLimit = 4;
         let isEstimationMode = false;
 
         let data = {
@@ -360,27 +364,43 @@
         };
 
         window.handleSearchCallback = function(data) {
-            const container = document.getElementById('search-results-container');
             const searchBtn = document.getElementById('btn-search-trigger');
-            searchBtn.disabled = false;
-            searchBtn.innerText = "Search";
+            if (searchBtn) {
+                searchBtn.disabled = false;
+                searchBtn.innerText = "Search";
+            }
 
             if (!data || !data.results || data.results.length === 0) {
                 searchResultsStore = [];
-                container.innerHTML = '<div class="text-center text-xs text-red-500 py-6">No matching records found</div>';
+                renderSearchResults();
                 return;
             }
 
             searchResultsStore = data.results;
+            displayLimit = 4;
+            renderSearchResults();
+        };
 
-            container.innerHTML = data.results.map((r, index) => {
+        function renderSearchResults() {
+            const container = document.getElementById('search-results-container');
+            const query = document.getElementById('search-input').value.trim();
+
+            if (searchResultsStore.length === 0) {
+                container.innerHTML = `<div class="text-center text-xs text-gray-400 py-6">${query === '' ? 'No recent submissions found in Google Sheets.' : 'No matching records found'}</div>`;
+                return;
+            }
+
+            const visibleResults = searchResultsStore.slice(0, displayLimit);
+            const hasMore = searchResultsStore.length > displayLimit;
+
+            let html = visibleResults.map((r, index) => {
                 const recordId = r.estId || r.exchangeId;
                 const isEstRecord = (r.estId && r.estId.toString().trim() !== "");
                 
                 return `
                 <div class="${isEstRecord ? 'bg-amber-50/60 border-amber-200' : 'bg-red-50/50 border-red-100'} p-3.5 rounded-xl border text-xs space-y-2">
                     <div class="flex justify-between font-bold ${isEstRecord ? 'text-amber-700' : 'text-red-700'} text-sm">
-                        <span>${recordId} ${isEstRecord ? '(ESTIMATE)' : ''}</span>
+                        <span>${recordId} ${isEstRecord ? '(ESTIMATE)' : '(EXCHANGE)'}</span>
                         <span>₹${parseFloat(r.grandTotal || 0).toFixed(2)}</span>
                     </div>
                     <div class="text-gray-700"><span class="font-semibold">Name:</span> ${r.customerName} (${r.customerPhone})</div>
@@ -403,23 +423,51 @@
                         </button>
                     </div>
                 </div>
-            `}).join('');
-        };
+            `;
+            }).join('');
+
+            if (hasMore) {
+                html += `
+                    <div class="text-center pt-2 pb-1">
+                        <button onclick="loadMoreResults()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded-xl text-xs border border-gray-300 shadow-sm transition">
+                            Load More (${searchResultsStore.length - displayLimit} remaining)
+                        </button>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
+        function loadMoreResults() {
+            displayLimit += 4;
+            renderSearchResults();
+        }
 
         function submitOrderFromEstimate(index) {
             const r = searchResultsStore[index];
             if (!r) return;
 
-            // Mark this row index for conversion on submit
             convertingRowIndex = r.rowIndex;
+            populateFormFromRecord(r);
+            closeSearchModal();
+            handleSubmitOrder();
+        }
 
-            // Populate form fields with estimate details
+        function populateFormFromRecord(r) {
             document.getElementById('cust-name').value = r.customerName || '';
             document.getElementById('cust-phone').value = r.customerPhone || '';
 
-            // Close search modal and trigger the submit order flow
-            closeSearchModal();
-            handleSubmitOrder();
+            const alNet = parseFloat(r.alNet || 0);
+            const stNet = parseFloat(r.stNet || 0);
+
+            data.al.weights = alNet > 0 ? [alNet] : [0, 0];
+            data.al.handles = 0;
+
+            data.st.weights = stNet > 0 ? [stNet] : [0, 0];
+            data.st.handles = 0;
+
+            render();
         }
 
         function setPrintMode(mode) {
@@ -443,7 +491,7 @@
 
             const duplicateBadge = document.getElementById('print-duplicate-badge');
             if (isEstRecord) {
-                duplicateBadge.innerText = "*** ESTIMATE RECEIPT - NOT PAID ***";
+                duplicateBadge.innerText = "*** ESTIMATE RECEIPT - NOT SUBMITTED ***";
                 document.getElementById('receipt-header-title').innerText = "Material Estimation Receipt";
                 document.getElementById('print-id-label').innerText = "Estimation ID";
             } else {
@@ -458,19 +506,57 @@
             document.getElementById('print-cust-phone').innerText = r.customerPhone;
             document.getElementById('print-date').innerText = "Date: " + r.timestamp;
 
-            document.getElementById('print-al-items').innerHTML = `<div class="flex justify-between"><span>Net Summary:</span><span>${parseFloat(r.alNet || 0).toFixed(2)} kg</span></div>`;
-            document.getElementById('print-al-gross').innerText = `${parseFloat(r.alGross || 0).toFixed(2)} kg`;
-            document.getElementById('print-al-hc').innerText = "0";
-            document.getElementById('print-al-hd').innerText = "-0.00 kg";
-            document.getElementById('print-al-net').innerText = `${parseFloat(r.alNet || 0).toFixed(2)} kg`;
-            document.getElementById('print-al-cost').innerText = `₹${parseFloat(r.alAmount || 0).toFixed(2)}`;
+            const alGross = parseFloat(r.alGross || 0);
+            const alNet = parseFloat(r.alNet || 0);
+            const alAmt = parseFloat(r.alAmount || 0);
+            const stGross = parseFloat(r.stGross || 0);
+            const stNet = parseFloat(r.stNet || 0);
+            const stAmt = parseFloat(r.stAmount || 0);
 
-            document.getElementById('print-st-items').innerHTML = `<div class="flex justify-between"><span>Net Summary:</span><span>${parseFloat(r.stNet || 0).toFixed(2)} kg</span></div>`;
-            document.getElementById('print-st-gross').innerText = `${parseFloat(r.stGross || 0).toFixed(2)} kg`;
-            document.getElementById('print-st-hc').innerText = "0";
-            document.getElementById('print-st-hd').innerText = "-0.00 kg";
-            document.getElementById('print-st-net').innerText = `${parseFloat(r.stNet || 0).toFixed(2)} kg`;
-            document.getElementById('print-st-cost').innerText = `₹${parseFloat(r.stAmount || 0).toFixed(2)}`;
+            const alSection = document.getElementById('print-al-section');
+            const stSection = document.getElementById('print-st-section');
+            const materialsGrid = document.getElementById('print-materials-grid');
+
+            if (alGross > 0) {
+                alSection.style.display = 'block';
+                const nonZeroAlWeights = [alNet].filter(w => w > 0);
+                document.getElementById('print-al-items').innerHTML = nonZeroAlWeights.length > 0 
+                    ? nonZeroAlWeights.map((w, i) => `<div class="flex justify-between"><span>Item ${i+1}:</span><span>${w.toFixed(2)} kg</span></div>`).join('')
+                    : `<div class="flex justify-between text-gray-400 italic"><span>No Aluminum items</span></div>`;
+
+                document.getElementById('print-al-gross').innerText = `${alGross.toFixed(2)} kg`;
+                document.getElementById('print-al-hc').innerText = "0";
+                document.getElementById('print-al-hd').innerText = "-0.00 kg";
+                document.getElementById('print-al-net').innerText = `${alNet.toFixed(2)} kg`;
+                document.getElementById('print-al-cost').innerText = `₹${alAmt.toFixed(2)}`;
+            } else {
+                alSection.style.display = 'none';
+            }
+
+            if (stGross > 0) {
+                stSection.style.display = 'block';
+                const nonZeroStWeights = [stNet].filter(w => w > 0);
+                document.getElementById('print-st-items').innerHTML = nonZeroStWeights.length > 0 
+                    ? nonZeroStWeights.map((w, i) => `<div class="flex justify-between"><span>Item ${i+1}:</span><span>${w.toFixed(2)} kg</span></div>`).join('')
+                    : `<div class="flex justify-between text-gray-400 italic"><span>No Steel items</span></div>`;
+
+                document.getElementById('print-st-gross').innerText = `${stGross.toFixed(2)} kg`;
+                document.getElementById('print-st-hc').innerText = "0";
+                document.getElementById('print-st-hd').innerText = "-0.00 kg";
+                document.getElementById('print-st-net').innerText = `${stNet.toFixed(2)} kg`;
+                document.getElementById('print-st-cost').innerText = `₹${stAmt.toFixed(2)}`;
+            } else {
+                stSection.style.display = 'none';
+            }
+
+            if (alGross > 0 && stGross > 0) {
+                materialsGrid.className = "grid grid-cols-2 gap-4 text-xs thermal-stack thermal-text-sm";
+                alSection.className = "border-r pr-3 thermal-hide-col-border thermal-border-bottom";
+            } else {
+                materialsGrid.className = "grid grid-cols-1 gap-4 text-xs thermal-stack thermal-text-sm";
+                alSection.className = "thermal-border-bottom";
+                stSection.className = "thermal-border-bottom";
+            }
 
             const grandTotal = parseFloat(r.grandTotal || 0);
             document.getElementById('print-grand-total').innerText = `₹${grandTotal.toFixed(2)}`;
@@ -517,11 +603,11 @@
 
         function executeSearch() {
             const query = document.getElementById('search-input').value.trim();
-            if (!query) return;
-
             const searchBtn = document.getElementById('btn-search-trigger');
-            searchBtn.disabled = true;
-            searchBtn.innerText = "Searching...";
+            if (searchBtn) {
+                searchBtn.disabled = true;
+                searchBtn.innerText = "Searching...";
+            }
 
             const oldScript = document.getElementById('search-script');
             if (oldScript) oldScript.remove();
@@ -534,6 +620,20 @@
 
         function openSearchModal() {
             document.getElementById('search-modal').classList.remove('hidden');
+            setTimeout(() => {
+                const searchInput = document.getElementById('search-input');
+                searchInput.focus();
+                searchInput.value = '';
+            }, 100);
+
+            document.getElementById('search-results-container').innerHTML = '<div class="text-center text-xs text-gray-400 py-6">Loading last 4 submissions from Google Sheets...</div>';
+            const oldScript = document.getElementById('search-script');
+            if (oldScript) oldScript.remove();
+
+            const script = document.createElement('script');
+            script.id = 'search-script';
+            script.src = scriptUrl + '?action=search&query=&callback=handleSearchCallback&v=128&t=' + new Date().getTime();
+            document.body.appendChild(script);
         }
 
         function closeSearchModal() {
@@ -541,11 +641,19 @@
             document.getElementById('search-input').value = '';
             document.getElementById('search-results-container').innerHTML = '<div class="text-center text-xs text-gray-400 py-6">Enter query and click Search</div>';
             searchResultsStore = [];
+            
+            setTimeout(() => {
+                const nameInput = document.getElementById('cust-name');
+                if (nameInput) {
+                    nameInput.focus();
+                }
+            }, 50);
         }
 
         function init() {
             fetchNextIds();
             render();
+            document.getElementById('cust-name').focus();
         }
 
         function switchTab(tab) {
@@ -617,19 +725,50 @@
 
             document.getElementById('print-date').innerText = "Date: " + new Date().toLocaleString();
 
-            document.getElementById('print-al-items').innerHTML = data.al.weights.map((w, i) => `<div class="flex justify-between"><span>Item ${i+1}:</span><span>${w.toFixed(2)} kg</span></div>`).join('');
-            document.getElementById('print-al-gross').innerText = `${al.gross.toFixed(2)} kg`;
-            document.getElementById('print-al-hc').innerText = data.al.handles;
-            document.getElementById('print-al-hd').innerText = `-${al.hd.toFixed(2)} kg`;
-            document.getElementById('print-al-net').innerText = `${al.net.toFixed(2)} kg`;
-            document.getElementById('print-al-cost').innerText = `₹${al.cost.toFixed(2)}`;
+            const alSection = document.getElementById('print-al-section');
+            const stSection = document.getElementById('print-st-section');
+            const materialsGrid = document.getElementById('print-materials-grid');
 
-            document.getElementById('print-st-items').innerHTML = data.st.weights.map((w, i) => `<div class="flex justify-between"><span>Item ${i+1}:</span><span>${w.toFixed(2)} kg</span></div>`).join('');
-            document.getElementById('print-st-gross').innerText = `${st.gross.toFixed(2)} kg`;
-            document.getElementById('print-st-hc').innerText = data.st.handles;
-            document.getElementById('print-st-hd').innerText = `-${st.hd.toFixed(2)} kg`;
-            document.getElementById('print-st-net').innerText = `${st.net.toFixed(2)} kg`;
-            document.getElementById('print-st-cost').innerText = `₹${st.cost.toFixed(2)}`;
+            if (al.gross > 0) {
+                alSection.style.display = 'block';
+                const validAlWeights = data.al.weights.map((w, i) => ({w, i})).filter(item => item.w > 0);
+                document.getElementById('print-al-items').innerHTML = validAlWeights.length > 0 
+                    ? validAlWeights.map(item => `<div class="flex justify-between"><span>Item ${item.i + 1}:</span><span>${item.w.toFixed(2)} kg</span></div>`).join('')
+                    : `<div class="flex justify-between text-gray-400 italic"><span>No Aluminum items</span></div>`;
+
+                document.getElementById('print-al-gross').innerText = `${al.gross.toFixed(2)} kg`;
+                document.getElementById('print-al-hc').innerText = data.al.handles;
+                document.getElementById('print-al-hd').innerText = `-${al.hd.toFixed(2)} kg`;
+                document.getElementById('print-al-net').innerText = `${al.net.toFixed(2)} kg`;
+                document.getElementById('print-al-cost').innerText = `₹${al.cost.toFixed(2)}`;
+            } else {
+                alSection.style.display = 'none';
+            }
+
+            if (st.gross > 0) {
+                stSection.style.display = 'block';
+                const validStWeights = data.st.weights.map((w, i) => ({w, i})).filter(item => item.w > 0);
+                document.getElementById('print-st-items').innerHTML = validStWeights.length > 0 
+                    ? validStWeights.map(item => `<div class="flex justify-between"><span>Item ${item.i + 1}:</span><span>${item.w.toFixed(2)} kg</span></div>`).join('')
+                    : `<div class="flex justify-between text-gray-400 italic"><span>No Steel items</span></div>`;
+
+                document.getElementById('print-st-gross').innerText = `${st.gross.toFixed(2)} kg`;
+                document.getElementById('print-st-hc').innerText = data.st.handles;
+                document.getElementById('print-st-hd').innerText = `-${st.hd.toFixed(2)} kg`;
+                document.getElementById('print-st-net').innerText = `${st.net.toFixed(2)} kg`;
+                document.getElementById('print-st-cost').innerText = `₹${st.cost.toFixed(2)}`;
+            } else {
+                stSection.style.display = 'none';
+            }
+
+            if (al.gross > 0 && st.gross > 0) {
+                materialsGrid.className = "grid grid-cols-2 gap-4 text-xs thermal-stack thermal-text-sm";
+                alSection.className = "border-r pr-3 thermal-hide-col-border thermal-border-bottom";
+            } else {
+                materialsGrid.className = "grid grid-cols-1 gap-4 text-xs thermal-stack thermal-text-sm";
+                alSection.className = "thermal-border-bottom";
+                stSection.className = "thermal-border-bottom";
+            }
 
             const grandTotal = al.cost + st.cost;
             document.getElementById('print-grand-total').innerText = `₹${grandTotal.toFixed(2)}`;
@@ -644,13 +783,21 @@
         }
 
         function handleGetEstimation() {
+            const al = computeMaterial('al');
+            const st = computeMaterial('st');
+
+            if (al.gross === 0 && st.gross === 0) {
+                alert("Error: Please enter at least one item weight before getting an estimation.");
+                return;
+            }
+
             isEstimationMode = true;
-            convertingRowIndex = null; // Fresh estimate, not converting an existing one
+            convertingRowIndex = null;
             const name = document.getElementById('cust-name').value.trim() || 'Valued Customer';
             const phone = document.getElementById('cust-phone').value.trim() || 'N/A';
 
             const duplicateBadge = document.getElementById('print-duplicate-badge');
-            duplicateBadge.innerText = "*** ESTIMATE RECEIPT - NOT PAID ***";
+            duplicateBadge.innerText = "*** ESTIMATE RECEIPT - NOT SUBMITTED ***";
             duplicateBadge.classList.remove('hidden');
 
             document.getElementById('receipt-header-title').innerText = "Material Estimation Receipt";
@@ -670,7 +817,7 @@
             btnSubmitEst.className = "w-full py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-2xl font-bold text-sm shadow transition flex items-center justify-center space-x-2";
             btnSubmitEst.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg><span>Submit Estimation</span>`;
 
-            document.getElementById('print-options-container').classList.add('hidden');
+            document.getElementById('print-options-container').classList.remove('hidden');
 
             document.getElementById('modal-step-review').classList.add('hidden');
             document.getElementById('modal-step-print').classList.remove('hidden');
@@ -743,6 +890,11 @@
 
             const al = computeMaterial('al');
             const st = computeMaterial('st');
+
+            if (al.gross === 0 && st.gross === 0) {
+                alert("Error: Please enter at least one item weight before submitting an order.");
+                return;
+            }
 
             document.getElementById('modal-exchange-id').innerText = currentExchangeId;
             document.getElementById('modal-cust-name').innerText = name;
@@ -866,6 +1018,7 @@
             convertingRowIndex = null;
             fetchNextIds();
             render();
+            document.getElementById('cust-name').focus();
         }
 
         init();
