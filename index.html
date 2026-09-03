@@ -68,7 +68,7 @@
 </head>
 <body class="bg-rose-50 min-h-screen p-2 sm:p-4 md:p-8 font-sans">
 
-    <!-- FULL PAGE LOADING OVERLAY (LOCKED UNTIL FULLY LOADED) -->
+    <!-- FULL PAGE LOADING OVERLAY -->
     <div id="page-loader" class="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center space-y-4 transition-opacity duration-300">
         <div class="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
         <p class="text-sm font-bold text-gray-700 tracking-wide">Loading application and IDs...</p>
@@ -342,6 +342,7 @@
         let searchResultsStore = [];
         let displayLimit = 4;
         let isEstimationMode = false;
+        let isAppLoaded = false; // Status flag for loading lock
 
         let data = {
             al: { weights: [0, 0], handles: 0 },
@@ -349,6 +350,8 @@
         };
 
         function unlockAppInputs() {
+            isAppLoaded = true; // Mark as loaded so item cells unlock properly
+
             const loader = document.getElementById('page-loader');
             if (loader) {
                 loader.style.opacity = '0';
@@ -704,8 +707,7 @@
             document.body.appendChild(script);
 
             setTimeout(() => {
-                const loader = document.getElementById('page-loader');
-                if (loader && loader.style.display !== 'none') {
+                if (!isAppLoaded) {
                     unlockAppInputs();
                 }
             }, 3000);
@@ -777,7 +779,7 @@
             const container = document.getElementById('item-list');
             container.innerHTML = '';
             
-            const isLocked = document.getElementById('page-loader').style.display !== 'none';
+            const isLocked = !isAppLoaded;
 
             if (data[activeTab].weights.length === 0) {
                 container.innerHTML = '<div class="text-xs text-gray-400 italic py-2 text-center">No items added. Click "+ Add Item" above.</div>';
@@ -835,6 +837,7 @@
         });
 
         function addItem() {
+            if (!isAppLoaded) return;
             data[activeTab].weights.push(0);
             render();
             const inputs = document.querySelectorAll('#item-list input');
@@ -844,16 +847,19 @@
         }
 
         function removeItem(idx) {
+            if (!isAppLoaded) return;
             data[activeTab].weights.splice(idx, 1);
             render();
         }
 
         function updateWeight(idx, val) {
+            if (!isAppLoaded) return;
             data[activeTab].weights[idx] = parseFloat(val) || 0;
             calculate();
         }
 
         function updateHandles(change) {
+            if (!isAppLoaded) return;
             data[activeTab].handles = Math.max(0, data[activeTab].handles + change);
             document.getElementById('handle-count').innerText = data[activeTab].handles;
             calculate();
@@ -934,6 +940,7 @@
         }
 
         function handleGetEstimation() {
+            if (!isAppLoaded) return;
             const al = computeMaterial('al');
             const st = computeMaterial('st');
 
@@ -1025,6 +1032,7 @@
         }
 
         function handleSubmitOrder() {
+            if (!isAppLoaded) return;
             isEstimationMode = false;
             const name = document.getElementById('cust-name').value.trim();
             const phone = document.getElementById('cust-phone').value.trim();
