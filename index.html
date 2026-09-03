@@ -163,7 +163,7 @@
     <div id="search-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-3 sm:p-4 z-50 hidden no-print">
         <div class="bg-white rounded-2xl max-w-lg w-full p-4 sm:p-6 shadow-2xl space-y-4 max-h-[85vh] flex flex-col">
             <div class="flex justify-between items-center border-b pb-3">
-                <h3 class="text-base sm:text-lg font-bold text-gray-900">Search Records</h3>
+                <h3 class="text-base sm:text-lg font-bold text-gray-900">Search Records & Estimates</h3>
                 <button type="button" onclick="closeSearchModal()" class="text-gray-400 hover:text-gray-600 font-bold text-xl px-2">✕</button>
             </div>
             
@@ -173,7 +173,7 @@
             </div>
 
             <div id="search-results-container" class="flex-1 overflow-y-auto space-y-3 pt-2">
-                <div class="text-center text-xs text-gray-400 py-6">Loading submissions from Google Sheets...</div>
+                <div class="text-center text-xs text-gray-400 py-6">Loading estimates and exchange lists from Google Sheets...</div>
             </div>
         </div>
     </div>
@@ -340,7 +340,7 @@
 
     <!-- App Logic -->
     <script>
-        const scriptUrl = "https://script.google.com/macros/s/AKfycbyvWPa8AXebbHVtHWK2_zUI45J1SU6YQycWwYaDTbSO9hzPAp7VPkhiis3H5MNvipFd8w/exec";
+        const scriptUrl = "https://script.google.com/macros/s/AKfycbx76AcyIFYfimObT2saaiDIwGpghbqwzokTiI4q9UBC1WKMdwzMFHnuWdcpuGtZaCkKSQ/exec";
         const rates = { al: 150.00, st: 50.00 };
         let activeTab = 'al';
         let currentExchangeId = 'LNex1';
@@ -464,20 +464,32 @@
             unlockAppInputs();
         };
 
-        window.handleSearchCallback = function(data) {
+        window.handleSearchCallback = function(res) {
             const searchBtn = document.getElementById('btn-search-trigger');
             if (searchBtn) {
                 searchBtn.disabled = false;
                 searchBtn.innerText = "Search";
             }
 
-            if (!data || !data.results || data.results.length === 0) {
+            let records = [];
+            if (res) {
+                if (Array.isArray(res)) {
+                    records = res;
+                } else if (res.results && Array.isArray(res.results)) {
+                    records = res.results;
+                } else if (res.data && Array.isArray(res.data)) {
+                    records = res.data;
+                }
+            }
+
+            if (records.length === 0) {
                 searchResultsStore = [];
                 renderSearchResults();
                 return;
             }
 
-            searchResultsStore = data.results;
+            // Since the backend script already returns results reversed (bottom-to-top), assign directly
+            searchResultsStore = records;
             displayLimit = 4;
             renderSearchResults();
         };
@@ -487,7 +499,7 @@
             const query = document.getElementById('search-input').value.trim();
 
             if (searchResultsStore.length === 0) {
-                container.innerHTML = `<div class="text-center text-xs text-gray-400 py-6">${query === '' ? 'No recent submissions found in Google Sheets.' : 'No matching records found'}</div>`;
+                container.innerHTML = `<div class="text-center text-xs text-gray-400 py-6">${query === '' ? 'No recent estimates or exchange lists found in Google Sheets.' : 'No matching records found'}</div>`;
                 return;
             }
 
@@ -495,17 +507,17 @@
             const hasMore = searchResultsStore.length > displayLimit;
 
             let html = visibleResults.map((r, index) => {
-                const recordId = r.estId || r.exchangeId;
-                const isEstRecord = (r.estId && r.estId.toString().trim() !== "");
+                const recordId = r.estId || r.exchangeId || r.id || 'N/A';
+                const isEstRecord = (r.estId && r.estId.toString().trim() !== "") || (r.type === 'ESTIMATE');
                 
                 return `
                 <div class="${isEstRecord ? 'bg-amber-50/60 border-amber-200' : 'bg-red-50/50 border-red-100'} p-3.5 rounded-xl border text-xs space-y-2">
                     <div class="flex justify-between font-bold ${isEstRecord ? 'text-amber-700' : 'text-red-700'} text-sm">
                         <span>${recordId} ${isEstRecord ? '(ESTIMATE)' : '(EXCHANGE)'}</span>
-                        <span>₹${parseFloat(r.grandTotal || 0).toFixed(2)}</span>
+                        <span>₹${parseFloat(r.grandTotal || r.amount || 0).toFixed(2)}</span>
                     </div>
-                    <div class="text-gray-700"><span class="font-semibold">Name:</span> ${r.customerName} (${r.customerPhone})</div>
-                    <div class="text-gray-500 text-[10px]"><span class="font-semibold">Date:</span> ${r.timestamp}</div>
+                    <div class="text-gray-700"><span class="font-semibold">Name:</span> ${r.customerName || r.name || 'N/A'} (${r.customerPhone || r.phone || 'N/A'})</div>
+                    <div class="text-gray-500 text-[10px]"><span class="font-semibold">Date:</span> ${r.timestamp || r.date || 'N/A'}</div>
                     <div class="border-t ${isEstRecord ? 'border-amber-200' : 'border-red-100'} pt-1.5 flex justify-between text-gray-600">
                         <span>AL Net: ${parseFloat(r.alNet || 0).toFixed(2)} kg (₹${parseFloat(r.alAmount || 0).toFixed(2)})</span>
                         <span>Steel Net: ${parseFloat(r.stNet || 0).toFixed(2)} kg (₹${parseFloat(r.stAmount || 0).toFixed(2)})</span>
@@ -556,8 +568,8 @@
         }
 
         function populateFormFromRecord(r) {
-            document.getElementById('cust-name').value = r.customerName || '';
-            document.getElementById('cust-phone').value = r.customerPhone || '';
+            document.getElementById('cust-name').value = r.customerName || r.name || '';
+            document.getElementById('cust-phone').value = r.customerPhone || r.phone || '';
 
             const alNet = parseFloat(r.alNet || 0);
             const stNet = parseFloat(r.stNet || 0);
@@ -586,8 +598,8 @@
 
             setPrintMode(mode);
 
-            const recordId = r.estId || r.exchangeId;
-            const isEstRecord = (r.estId && r.estId.toString().trim() !== "");
+            const recordId = r.estId || r.exchangeId || r.id || 'N/A';
+            const isEstRecord = (r.estId && r.estId.toString().trim() !== "") || (r.type === 'ESTIMATE');
             isEstimationMode = isEstRecord;
 
             const duplicateBadge = document.getElementById('print-duplicate-badge');
@@ -603,9 +615,9 @@
             duplicateBadge.classList.remove('hidden');
 
             document.getElementById('print-exchange-id').innerText = recordId;
-            document.getElementById('print-cust-name').innerText = r.customerName;
-            document.getElementById('print-cust-phone').innerText = r.customerPhone;
-            document.getElementById('print-date').innerText = "Date: " + r.timestamp;
+            document.getElementById('print-cust-name').innerText = r.customerName || r.name || '';
+            document.getElementById('print-cust-phone').innerText = r.customerPhone || r.phone || '';
+            document.getElementById('print-date').innerText = "Date: " + (r.timestamp || r.date || '');
 
             const alGross = parseFloat(r.alGross || 0);
             const alNet = parseFloat(r.alNet || 0);
@@ -659,7 +671,7 @@
                 stSection.className = "thermal-border-bottom";
             }
 
-            const grandTotal = parseFloat(r.grandTotal || 0);
+            const grandTotal = parseFloat(r.grandTotal || r.amount || 0);
             document.getElementById('print-grand-total').innerText = `₹${grandTotal.toFixed(2)}`;
 
             renderSimpleBarcode(grandTotal);
@@ -704,7 +716,7 @@
 
             const script = document.createElement('script');
             script.id = 'jsonp-script';
-            script.src = scriptUrl + '?callback=handleIdCallback&v=128&t=' + new Date().getTime();
+            script.src = scriptUrl + '?callback=handleIdCallback&v=131&t=' + new Date().getTime();
             
             script.onerror = () => {
                 unlockAppInputs();
@@ -732,7 +744,16 @@
 
             const script = document.createElement('script');
             script.id = 'search-script';
-            script.src = scriptUrl + '?action=search&query=' + encodeURIComponent(query) + '&callback=handleSearchCallback&v=128&t=' + new Date().getTime();
+            script.src = scriptUrl + '?action=search&query=' + encodeURIComponent(query) + '&callback=handleSearchCallback&v=131&t=' + new Date().getTime();
+            
+            script.onerror = () => {
+                if (searchBtn) {
+                    searchBtn.disabled = false;
+                    searchBtn.innerText = "Search";
+                }
+                document.getElementById('search-results-container').innerHTML = '<div class="text-center text-xs text-red-500 py-6">Connection error loading records. Please check your Google Apps Script URL.</div>';
+            };
+
             document.body.appendChild(script);
         }
 
@@ -744,13 +765,19 @@
                 searchInput.value = '';
             }, 100);
 
-            document.getElementById('search-results-container').innerHTML = '<div class="text-center text-xs text-gray-400 py-6">Loading submissions from Google Sheets...</div>';
+            document.getElementById('search-results-container').innerHTML = '<div class="text-center text-xs text-gray-400 py-6">Loading estimates and exchange lists from Google Sheets...</div>';
+            
             const oldScript = document.getElementById('search-script');
             if (oldScript) oldScript.remove();
 
             const script = document.createElement('script');
             script.id = 'search-script';
-            script.src = scriptUrl + '?action=search&query=&callback=handleSearchCallback&v=128&t=' + new Date().getTime();
+            script.src = scriptUrl + '?action=search&query=&callback=handleSearchCallback&v=131&t=' + new Date().getTime();
+            
+            script.onerror = () => {
+                document.getElementById('search-results-container').innerHTML = '<div class="text-center text-xs text-red-500 py-6">Connection error loading records. Please check your Google Apps Script URL.</div>';
+            };
+
             document.body.appendChild(script);
         }
 
