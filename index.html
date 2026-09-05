@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Exchange Calculator & Google Sheets Sync</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Barcode Library -->
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <style>
         .no-print { display: block; }
@@ -34,9 +36,15 @@
         }
 
         @media print {
+            /* Force zero margins on the page container to hide browser URLs and timestamps */
+            @page {
+                size: 80mm auto;
+                margin: 0mm !important;
+            }
+
             html, body {
                 height: auto !important;
-                width: 100% !important;
+                width: 80mm !important;
                 overflow: visible !important;
                 background: white !important;
                 padding: 0 !important;
@@ -47,30 +55,39 @@
             .no-print { display: none !important; }
             .print-only { display: block !important; page-break-inside: avoid !important; break-inside: avoid !important; width: 100% !important; }
 
-            body.print-mode-a4 @page { size: A4 portrait; margin: 0; }
+            body.print-mode-a4 @page { size: A4 portrait; margin: 10mm; }
             body.print-mode-thermal @page { size: 80mm auto; margin: 0mm !important; }
             
             body.print-mode-thermal .receipt-container {
-                width: 100% !important; max-width: none !important; padding: 0mm !important; border: none !important; margin: 0 !important; color: #000 !important; font-size: 12px !important; line-height: 1.25 !important;
+                width: 76mm !important; 
+                max-width: 76mm !important; 
+                padding: 2mm !important; 
+                border: none !important; 
+                margin: 0 auto !important; 
+                color: #000 !important; 
+                font-size: 11px !important; 
+                line-height: 1.2 !important;
             }
             body.print-mode-thermal .watermark-img { display: none !important; }
             body.print-mode-thermal .thermal-stack { display: block !important; }
-            body.print-mode-thermal .thermal-border-bottom { border-bottom: 1.5px dashed #000 !important; padding-bottom: 5px !important; margin-bottom: 5px !important; }
-            body.print-mode-thermal .thermal-text-lg { font-size: 14px !important; font-weight: 800 !important; text-transform: uppercase; }
-            body.print-mode-thermal .thermal-text-sm { font-size: 11.5px !important; font-weight: 700 !important; }
-            body.print-mode-thermal .thermal-bold { font-weight: 800 !important; font-size: 12px !important; }
+            body.print-mode-thermal .thermal-border-bottom { border-bottom: 1.5px dashed #000 !important; padding-bottom: 4px !important; margin-bottom: 4px !important; }
+            body.print-mode-thermal .thermal-text-lg { font-size: 13px !important; font-weight: 800 !important; text-transform: uppercase; }
+            body.print-mode-thermal .thermal-text-sm { font-size: 10.5px !important; font-weight: 700 !important; }
+            body.print-mode-thermal .thermal-bold { font-weight: 800 !important; font-size: 11px !important; }
             body.print-mode-thermal .thermal-hide-col-border { border-right: none !important; padding-right: 0 !important; }
-            body.print-mode-thermal #print-grand-total { font-size: 18px !important; font-weight: 900 !important; }
+            body.print-mode-thermal #print-grand-total { font-size: 16px !important; font-weight: 900 !important; }
         }
     </style>
 </head>
 <body class="bg-rose-50 min-h-screen p-2 sm:p-4 md:p-8 font-sans">
 
+    <!-- FULL PAGE LOADING OVERLAY -->
     <div id="page-loader" class="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center space-y-4 transition-opacity duration-300">
         <div class="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
         <p class="text-sm font-bold text-gray-700 tracking-wide">Loading application and IDs...</p>
     </div>
 
+    <!-- ================= APP INTERFACE (NO-PRINT) ================= -->
     <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden no-print border border-red-100">
         <div class="bg-red-600 p-4 sm:p-6 text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div>
@@ -155,6 +172,7 @@
         </div>
     </div>
 
+    <!-- SEARCH MODAL -->
     <div id="search-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-3 sm:p-4 z-50 hidden no-print">
         <div class="bg-white rounded-2xl max-w-lg w-full p-4 sm:p-6 shadow-2xl space-y-4 max-h-[85vh] flex flex-col">
             <div class="flex justify-between items-center border-b pb-3">
@@ -172,6 +190,7 @@
         </div>
     </div>
 
+    <!-- SUBMISSION CONFIRMATION MODAL -->
     <div id="confirm-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-3 sm:p-4 z-50 hidden no-print">
         <div class="bg-white rounded-3xl max-w-md w-full p-4 sm:p-6 shadow-2xl space-y-4 text-center">
             
@@ -262,6 +281,7 @@
         </div>
     </div>
 
+    <!-- PRINT-ONLY RECEIPT LAYOUT -->
     <div class="print-only max-w-2xl mx-auto p-3 border-2 border-red-700 rounded-lg receipt-container">
         <img src="./4L.png" alt="Watermark Logo" class="watermark-img">
         <div class="relative z-10">
@@ -319,6 +339,7 @@
         </div>
     </div>
 
+    <!-- App Logic -->
     <script>
         const scriptUrl = "https://script.google.com/macros/s/AKfycby_cn4b6S1RgLakDA5wUA7kch6E0QVBLfmZc6zSFx2kPRVqf6cDlHrH8meIqjDDAt-j/exec";
         const rates = { al: 150.00, st: 50.00 };
@@ -339,13 +360,10 @@
 
         function unlockAppInputs() {
             isAppLoaded = true;
-
             const loader = document.getElementById('page-loader');
             if (loader) {
                 loader.style.opacity = '0';
-                setTimeout(() => {
-                    loader.style.display = 'none';
-                }, 200);
+                setTimeout(() => { loader.style.display = 'none'; }, 200);
             }
 
             const searchModalBtn = document.getElementById('btn-search-modal');
@@ -414,10 +432,7 @@
             if (event.key === 'Enter') {
                 event.preventDefault();
                 const phoneInput = document.getElementById('cust-phone');
-                if (phoneInput) {
-                    phoneInput.focus();
-                    phoneInput.select();
-                }
+                if (phoneInput) { phoneInput.focus(); phoneInput.select(); }
             }
         }
 
@@ -425,21 +440,13 @@
             if (event.key === 'Enter') {
                 event.preventDefault();
                 const inputs = Array.from(document.querySelectorAll('.item-input'));
-                if (inputs.length > 0) {
-                    inputs[0].focus();
-                    inputs[0].select();
-                }
+                if (inputs.length > 0) { inputs[0].focus(); inputs[0].select(); }
             }
         }
 
         async function fetchNextIds() {
-            if (!scriptUrl) {
-                unlockAppInputs();
-                return;
-            }
-
+            if (!scriptUrl) { unlockAppInputs(); return; }
             const timeoutPromise = new Promise((resolve) => setTimeout(resolve, 4000));
-
             const fetchPromise = (async () => {
                 const response = await fetch(scriptUrl);
                 const resData = await response.json();
@@ -448,33 +455,22 @@
                         currentExchangeId = resData.nextId;
                         document.getElementById('app-exchange-id').innerText = currentExchangeId;
                     }
-                    if (resData.nextEstId) {
-                        currentEstId = resData.nextEstId;
-                    }
+                    if (resData.nextEstId) { currentEstId = resData.nextEstId; }
                 }
             })();
-
-            try {
-                await Promise.race([fetchPromise, timeoutPromise]);
-            } catch (err) {
-                console.error("Error fetching IDs, using default fallback:", err);
-            }
-
+            try { await Promise.race([fetchPromise, timeoutPromise]); } catch (err) { console.error(err); }
             unlockAppInputs();
         }
 
         function onSearchInput() {
             clearTimeout(searchDebounceTimer);
             const query = document.getElementById('search-input').value.trim();
-            
             if (query === '') {
                 document.getElementById('search-results-container').innerHTML = '<div class="text-center text-xs text-gray-400 py-6">Type to search records instantly...</div>';
                 searchResultsStore = [];
                 return;
             }
-
             document.getElementById('search-results-container').innerHTML = '<div class="text-center text-xs text-gray-400 py-6">Searching...</div>';
-
             searchDebounceTimer = setTimeout(async () => {
                 try {
                     const response = await fetch(`${scriptUrl}?action=search&query=${encodeURIComponent(query)}`);
@@ -483,7 +479,6 @@
                     displayLimit = 4;
                     renderSearchResults();
                 } catch (err) {
-                    console.error("Search error:", err);
                     document.getElementById('search-results-container').innerHTML = '<div class="text-center text-xs text-red-500 py-6">Connection error loading records.</div>';
                 }
             }, 300);
@@ -492,7 +487,6 @@
         function renderSearchResults() {
             const container = document.getElementById('search-results-container');
             const query = document.getElementById('search-input').value.trim().toLowerCase().replace(/\s+/g, '');
-
             let filteredRecords = searchResultsStore;
             if (query !== '') {
                 filteredRecords = searchResultsStore.filter(r => {
@@ -500,12 +494,10 @@
                     return rowString.includes(query);
                 });
             }
-
             if (filteredRecords.length === 0) {
                 container.innerHTML = `<div class="text-center text-xs text-gray-400 py-6">No matching records found</div>`;
                 return;
             }
-
             const visibleResults = filteredRecords.slice(0, displayLimit);
             const hasMore = filteredRecords.length > displayLimit;
 
@@ -513,24 +505,17 @@
                 const recordId = r.estId || r.exchangeId || 'N/A';
                 const isEstRecord = (r.estId && r.estId.toString().trim() !== "") || (r.type === 'ESTIMATE') || String(recordId).startsWith('Est');
                 const isConverted = r.exchangeId && r.exchangeId.toString().trim() !== "";
-                
                 const alGrossVal = parseFloat(r.alGross || 0);
                 const stGrossVal = parseFloat(r.stGross || 0);
                 const alNetVal = parseFloat(r.alNet !== undefined && !isNaN(r.alNet) ? r.alNet : alGrossVal);
                 const stNetVal = parseFloat(r.stNet !== undefined && !isNaN(r.stNet) ? r.stNet : stGrossVal);
-                
                 const alAmtVal = parseFloat(r.alAmount !== undefined && !isNaN(r.alAmount) ? r.alAmount : (alNetVal * 150));
                 const stAmtVal = parseFloat(r.stAmount !== undefined && !isNaN(r.stAmount) ? r.stAmount : (stNetVal * 50));
-                
                 let totalVal = parseFloat(r.grandTotal || 0);
-                if (!totalVal || totalVal === 0 || isNaN(totalVal)) {
-                    totalVal = alAmtVal + stAmtVal;
-                }
-
+                if (!totalVal || totalVal === 0 || isNaN(totalVal)) { totalVal = alAmtVal + stAmtVal; }
                 const custName = r.customerName || 'N/A';
                 const custPhone = r.customerPhone || 'N/A';
                 const timestamp = r.timestamp || 'N/A';
-
                 const originalIndex = searchResultsStore.indexOf(r);
 
                 return `
@@ -558,8 +543,7 @@
                             <span>Thermal Print</span>
                         </button>
                     </div>
-                </div>
-            `;
+                </div>`;
             }).join('');
 
             if (hasMore) {
@@ -568,22 +552,16 @@
                         <button type="button" onclick="loadMoreResults()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded-xl text-xs border border-gray-300 shadow-sm transition active:scale-95">
                             Load More (${filteredRecords.length - displayLimit} remaining)
                         </button>
-                    </div>
-                `;
+                    </div>`;
             }
-
             container.innerHTML = html;
         }
 
-        function loadMoreResults() {
-            displayLimit += 4;
-            renderSearchResults();
-        }
+        function loadMoreResults() { displayLimit += 4; renderSearchResults(); }
 
         function submitOrderFromEstimate(index) {
             const r = searchResultsStore[index];
             if (!r) return;
-
             convertingRowIndex = r.rowIndex;
             populateFormFromRecord(r);
             closeSearchModal();
@@ -593,16 +571,12 @@
         function populateFormFromRecord(r) {
             document.getElementById('cust-name').value = r.customerName || '';
             document.getElementById('cust-phone').value = r.customerPhone || '';
-
             const alNet = parseFloat(r.alNet || r.alGross || 0);
             const stNet = parseFloat(r.stNet || r.stGross || 0);
-
             data.al.weights = alNet > 0 ? [alNet] : [0, 0];
             data.al.handles = 0;
-
             data.st.weights = stNet > 0 ? [stNet] : [0, 0];
             data.st.handles = 0;
-
             render();
         }
 
@@ -618,7 +592,6 @@
         function printSearchResult(index, mode) {
             const r = searchResultsStore[index];
             if (!r) return;
-
             setPrintMode(mode);
 
             const recordId = r.estId || r.exchangeId || 'N/A';
@@ -698,16 +671,11 @@
             }
 
             let grandTotal = parseFloat(r.grandTotal || 0);
-            if (!grandTotal || grandTotal === 0 || isNaN(grandTotal)) {
-                grandTotal = alAmt + stAmt;
-            }
+            if (!grandTotal || grandTotal === 0 || isNaN(grandTotal)) { grandTotal = alAmt + stAmt; }
             document.getElementById('print-grand-total').innerText = `₹${grandTotal.toFixed(2)}`;
 
             renderSimpleBarcode(grandTotal);
-            // Note: Search popup remains open when printing or acting on records.
-            setTimeout(() => {
-                window.print();
-            }, 300);
+            setTimeout(() => { window.print(); }, 300);
         }
 
         function renderSimpleBarcode(val) {
@@ -716,23 +684,19 @@
                 barcodeElement.style.display = 'none';
                 return;
             }
-
             barcodeElement.style.display = 'block';
             try {
                 const formattedVal = Math.round(val).toString();
                 const isThermal = document.body.classList.contains('print-mode-thermal');
-                
                 JsBarcode("#payout-barcode", formattedVal, {
                     format: "CODE128",
-                    width: isThermal ? 1.6 : 1.5,
-                    height: isThermal ? 32 : 30,
+                    width: isThermal ? 1.4 : 1.5,
+                    height: isThermal ? 28 : 30,
                     displayValue: true,
-                    fontSize: isThermal ? 10 : 10,
+                    fontSize: isThermal ? 9 : 10,
                     margin: 0
                 });
-            } catch (e) {
-                console.error("Barcode generation error:", e);
-            }
+            } catch (e) { console.error(e); }
         }
 
         function openSearchModal() {
@@ -742,7 +706,6 @@
                 searchInput.focus();
                 searchInput.value = '';
             }, 100);
-
             document.getElementById('search-results-container').innerHTML = '<div class="text-center text-xs text-gray-400 py-6">Type to search records instantly...</div>';
             searchResultsStore = [];
         }
@@ -752,19 +715,13 @@
             document.getElementById('search-input').value = '';
             document.getElementById('search-results-container').innerHTML = '<div class="text-center text-xs text-gray-400 py-6">Type to search records instantly...</div>';
             searchResultsStore = [];
-            
             setTimeout(() => {
                 const nameInput = document.getElementById('cust-name');
-                if (nameInput) {
-                    nameInput.focus();
-                }
+                if (nameInput) { nameInput.focus(); }
             }, 50);
         }
 
-        function init() {
-            render();
-            fetchNextIds();
-        }
+        function init() { render(); fetchNextIds(); }
 
         function switchTab(tab) {
             activeTab = tab;
@@ -777,7 +734,6 @@
         function render() {
             const container = document.getElementById('item-list');
             container.innerHTML = '';
-            
             const isLocked = !isAppLoaded;
 
             if (data[activeTab].weights.length === 0) {
@@ -794,7 +750,6 @@
                     container.appendChild(div);
                 });
             }
-
             document.getElementById('handle-count').innerText = data[activeTab].handles;
             calculate();
         }
@@ -804,21 +759,16 @@
                 event.preventDefault();
                 const inputs = Array.from(document.querySelectorAll('.item-input'));
                 const nextIndex = currentIndex + 1;
-                
                 if (nextIndex < inputs.length) {
                     inputs[nextIndex].focus();
                     inputs[nextIndex].select();
                 } else if (currentIndex === 1) {
                     const handlePlusBtn = document.getElementById('btn-handle-plus');
-                    if (handlePlusBtn) {
-                        handlePlusBtn.focus();
-                    }
+                    if (handlePlusBtn) { handlePlusBtn.focus(); }
                 } else {
                     addItem();
                     const updatedInputs = Array.from(document.querySelectorAll('.item-input'));
-                    if (updatedInputs.length > inputs.length) {
-                        updatedInputs[updatedInputs.length - 1].focus();
-                    }
+                    if (updatedInputs.length > inputs.length) { updatedInputs[updatedInputs.length - 1].focus(); }
                 }
             }
         }
@@ -827,10 +777,7 @@
             const handlePlus = document.getElementById('btn-handle-plus');
             if (handlePlus) {
                 handlePlus.addEventListener('keydown', (event) => {
-                    if (event.key === 'Enter') {
-                        event.preventDefault();
-                        updateHandles(1);
-                    }
+                    if (event.key === 'Enter') { event.preventDefault(); updateHandles(1); }
                 });
             }
         });
@@ -840,9 +787,7 @@
             data[activeTab].weights.push(0);
             render();
             const inputs = document.querySelectorAll('#item-list input');
-            if (inputs.length > 0) {
-                inputs[inputs.length - 1].focus();
-            }
+            if (inputs.length > 0) { inputs[inputs.length - 1].focus(); }
         }
 
         function removeItem(idx) {
@@ -878,7 +823,6 @@
 
             document.getElementById('al-total-display').innerText = `₹${al.cost.toFixed(2)}`;
             document.getElementById('st-total-display').innerText = `₹${st.cost.toFixed(2)}`;
-
             document.getElementById('print-date').innerText = "Date: " + new Date().toLocaleString();
 
             const alSection = document.getElementById('print-al-section');
@@ -939,18 +883,14 @@
                 document.getElementById('modal-al-gross').innerText = `${al.gross.toFixed(2)} kg`;
                 document.getElementById('modal-al-handles').innerText = `${data.al.handles} hdl (-${al.hd.toFixed(2)} kg) = ${al.net.toFixed(2)} kg net`;
                 document.getElementById('modal-al-cost').innerText = `₹${al.cost.toFixed(2)}`;
-            } else {
-                modalAlBlock.style.display = 'none';
-            }
+            } else { modalAlBlock.style.display = 'none'; }
 
             if (st.gross > 0) {
                 modalStBlock.style.display = 'block';
                 document.getElementById('modal-st-gross').innerText = `${st.gross.toFixed(2)} kg`;
                 document.getElementById('modal-st-handles').innerText = `${data.st.handles} hdl (-${al.hd.toFixed(2)} kg) = ${st.net.toFixed(2)} kg net`;
                 document.getElementById('modal-st-cost').innerText = `₹${st.cost.toFixed(2)}`;
-            } else {
-                modalStBlock.style.display = 'none';
-            }
+            } else { modalStBlock.style.display = 'none'; }
 
             const popupAlBlock = document.getElementById('popup-al-block');
             const popupStBlock = document.getElementById('popup-st-block');
@@ -959,21 +899,16 @@
                 document.getElementById('popup-al-gross').innerText = `${al.gross.toFixed(2)} kg`;
                 document.getElementById('popup-al-handles').innerText = `${data.al.handles} hdl (-${al.hd.toFixed(2)} kg) = ${al.net.toFixed(2)} kg net`;
                 document.getElementById('popup-al-amount').innerText = `₹${al.cost.toFixed(2)}`;
-            } else {
-                popupAlBlock.style.display = 'none';
-            }
+            } else { popupAlBlock.style.display = 'none'; }
 
             if (st.gross > 0) {
                 popupStBlock.style.display = 'block';
                 document.getElementById('popup-st-gross').innerText = `${st.gross.toFixed(2)} kg`;
                 document.getElementById('popup-st-handles').innerText = `${data.st.handles} hdl (-${al.hd.toFixed(2)} kg) = ${st.net.toFixed(2)} kg net`;
                 document.getElementById('popup-st-amount').innerText = `₹${st.cost.toFixed(2)}`;
-            } else {
-                popupStBlock.style.display = 'none';
-            }
+            } else { popupStBlock.style.display = 'none'; }
 
             document.getElementById('popup-grand-total').innerText = `₹${grandTotal.toFixed(2)}`;
-
             renderSimpleBarcode(grandTotal);
         }
 
@@ -1014,7 +949,6 @@
             btnSubmitEst.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg><span>Submit Estimation</span>`;
 
             document.getElementById('print-options-container').classList.remove('hidden');
-
             document.getElementById('modal-step-review').classList.add('hidden');
             document.getElementById('modal-step-print').classList.remove('hidden');
             document.getElementById('confirm-modal').classList.remove('hidden');
@@ -1023,7 +957,6 @@
         async function processSubmitEstimation() {
             const name = document.getElementById('cust-name').value.trim() || 'Valued Customer';
             const phone = document.getElementById('cust-phone').value.trim() || 'N/A';
-
             const al = computeMaterial('al');
             const st = computeMaterial('st');
             const grandTotal = al.cost + st.cost;
@@ -1054,9 +987,7 @@
                         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                         body: formData.toString()
                     });
-                } catch (err) {
-                    console.error("Error saving estimation to Google Sheets:", err);
-                }
+                } catch (err) { console.error(err); }
             }
 
             submitEstBtn.innerText = "✓ Estimation Submitted Successfully";
@@ -1065,7 +996,6 @@
 
             document.getElementById('modal-print-subtitle').innerText = `Estimation ID ${currentEstId} saved. Choose print format:`;
             document.getElementById('print-options-container').classList.remove('hidden');
-
             fetchNextIds();
         }
 
@@ -1075,15 +1005,8 @@
             const name = document.getElementById('cust-name').value.trim();
             const phone = document.getElementById('cust-phone').value.trim();
 
-            if (!name) {
-                alert("Error: Please enter Customer Name.");
-                return;
-            }
-
-            if (!/^\d{10}$/.test(phone)) {
-                alert("Error: Mobile Number must be exactly 10 numerical digits.");
-                return;
-            }
+            if (!name) { alert("Error: Please enter Customer Name."); return; }
+            if (!/^\d{10}$/.test(phone)) { alert("Error: Mobile Number must be exactly 10 numerical digits."); return; }
 
             const al = computeMaterial('al');
             const st = computeMaterial('st');
@@ -1096,11 +1019,9 @@
             document.getElementById('modal-exchange-id').innerText = currentExchangeId;
             document.getElementById('modal-cust-name-display').innerText = name;
             document.getElementById('modal-cust-phone-display').innerText = phone;
-            
             calculate();
 
             document.getElementById('modal-grand-total').innerText = `₹${(al.cost + st.cost).toFixed(2)}`;
-
             document.getElementById('modal-step-review').classList.remove('hidden');
             document.getElementById('modal-step-print').classList.add('hidden');
             document.getElementById('confirm-modal').classList.remove('hidden');
@@ -1114,7 +1035,6 @@
         async function processSubmitOrder() {
             const name = document.getElementById('cust-name').value.trim();
             const phone = document.getElementById('cust-phone').value.trim();
-
             const al = computeMaterial('al');
             const st = computeMaterial('st');
             const grandTotal = al.cost + st.cost;
@@ -1148,9 +1068,7 @@
                         formData.append('grandTotal', grandTotal);
                         formData.append('type', 'TRANSACTION');
                         
-                        if (convertingRowIndex) {
-                            formData.append('convertFromRow', convertingRowIndex);
-                        }
+                        if (convertingRowIndex) { formData.append('convertFromRow', convertingRowIndex); }
 
                         await fetch(scriptUrl, {
                             method: 'POST',
@@ -1158,9 +1076,7 @@
                             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                             body: formData.toString()
                         });
-                    } catch (err) {
-                        console.error("Error saving to Google Sheets:", err);
-                    }
+                    } catch (err) { console.error(err); }
                 }
             })();
 
@@ -1172,14 +1088,12 @@
 
             document.getElementById('btn-submit-est').classList.add('hidden');
             document.getElementById('print-options-container').classList.remove('hidden');
-            
             document.getElementById('modal-status-icon').className = "w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto";
             document.getElementById('modal-print-title').innerText = "Transaction Saved!";
             document.getElementById('modal-print-subtitle').innerText = `Exchange ID: ${currentExchangeId}. Choose print format:`;
 
             document.getElementById('modal-step-review').classList.add('hidden');
             document.getElementById('modal-step-print').classList.remove('hidden');
-            
             fetchNextIds();
         }
 
@@ -1193,9 +1107,7 @@
             }, 400);
         }
 
-        function resetForm() {
-            window.location.reload();
-        }
+        function resetForm() { window.location.reload(); }
 
         init();
     </script>
